@@ -1,0 +1,6 @@
+{
+  "name": "Karaoke Guided Reader",
+  "description": "An interactive karaoke-style guided reading PWA optimized for iPad and tablet screens with compartmentalized story canvas, curated story library, reading settings, speech synthesis, and offline installation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

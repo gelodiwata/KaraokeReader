@@ -1,0 +1,4290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <title>Karaoke Guided Reader</title>
+  <meta name="description" content="An interactive karaoke-style guided reading PWA optimized for iPad and tablet screens with compartmentalized story canvas, curated story library, reading settings, speech synthesis, and offline installation." />
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Karaoke Guided Reader" />
+  <meta property="og:description" content="An interactive karaoke-style guided reading PWA optimized for iPad and tablet screens with compartmentalized story canvas, curated story library, reading settings, speech synthesis, and offline installation." />
+  <meta property="og:type" content="website" />
+
+  <!-- PWA & Mobile Web App Meta -->
+  <meta name="theme-color" content="#3B82F6" id="meta-theme-color" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Read Along" />
+
+  <!-- Favicon and App Icons using uploaded logo -->
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" id="apple-icon" />
+
+  <!-- Web App Manifest for Independent PWA Installation -->
+  <link rel="manifest" id="manifest-link" href="/manifest.json" />
+
+  <!-- Google Fonts: Lexend (reading fluency), Comic Neue (child friendly), Atkinson Hyperlegible -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Comic+Neue:wght@400;700&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ==========================================================================
+       CSS VARIABLES & ARTISTIC FLAIR THEME SYSTEM
+       ========================================================================== */
+    :root {
+      --font-lexend: 'Lexend', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-comic: 'Comic Neue', cursive, sans-serif;
+      --font-dyslexic: 'Atkinson Hyperlegible', sans-serif;
+      --font-clean: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+      --active-font: var(--font-lexend);
+      --reader-font-size: 36px;
+      --reader-line-height: 1.8;
+
+      /* Primary Artistic Flair Palette */
+      --ink: #2D3436;
+      --primary: #FF6B6B;
+      --primary-hover: #FF5252;
+      --primary-light: #FFE3E3;
+      --primary-dark: #E84118;
+      --secondary: #4ECDC4;
+      --secondary-hover: #3DBDB4;
+      --accent: #FFE66D;
+      --accent-hover: #FFD83B;
+      --success: #10B981;
+
+      /* Default Warm Artistic Flair Canvas */
+      --bg-main: #FDFCF0;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #FAF8E7;
+      --bg-card-alt: #FFFDEE;
+      --text-main: #2D3436;
+      --text-muted: #636E72;
+      --border-color: #2D3436;
+      --border-card: #2D3436;
+      --shadow-ink: #2D3436;
+
+      /* Karaoke Highlight styles */
+      --word-active-bg: #FFE66D;
+      --word-active-text: #2D3436;
+      --word-active-border: #2D3436;
+      --word-active-shadow: 4px 4px 0px 0px #2D3436;
+      --word-read-opacity: 0.40;
+      --word-read-color: #2D3436;
+      --word-future-color: #2D3436;
+    }
+
+    body[data-theme="crisp"] {
+      --bg-main: #F4F6F9;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #EBF0F5;
+      --bg-card-alt: #F8FAFC;
+      --text-main: #2D3436;
+      --text-muted: #636E72;
+      --border-color: #2D3436;
+      --border-card: #2D3436;
+      --shadow-ink: #2D3436;
+
+      --word-active-bg: #FFE66D;
+      --word-active-text: #2D3436;
+      --word-active-border: #2D3436;
+      --word-active-shadow: 4px 4px 0px 0px #2D3436;
+      --word-read-opacity: 0.40;
+      --word-read-color: #2D3436;
+      --word-future-color: #2D3436;
+    }
+
+    body[data-theme="dark"] {
+      --bg-main: #1E232A;
+      --bg-card: #2B333E;
+      --bg-subtle: #364150;
+      --bg-card-alt: #252D37;
+      --text-main: #FDFCF0;
+      --text-muted: #B2BEC3;
+      --border-color: #FDFCF0;
+      --border-card: #FDFCF0;
+      --shadow-ink: #000000;
+
+      --word-active-bg: #FFE66D;
+      --word-active-text: #2D3436;
+      --word-active-border: #FDFCF0;
+      --word-active-shadow: 4px 4px 0px 0px #000000;
+      --word-read-opacity: 0.40;
+      --word-read-color: #FDFCF0;
+      --word-future-color: #FDFCF0;
+    }
+
+    body[data-theme="mint"] {
+      --bg-main: #E8F8F5;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #D1F2EB;
+      --bg-card-alt: #E3F8F3;
+      --text-main: #2D3436;
+      --text-muted: #4A6B63;
+      --border-color: #2D3436;
+      --border-card: #2D3436;
+      --shadow-ink: #2D3436;
+
+      --word-active-bg: #FFE66D;
+      --word-active-text: #2D3436;
+      --word-active-border: #2D3436;
+      --word-active-shadow: 4px 4px 0px 0px #2D3436;
+      --word-read-opacity: 0.40;
+      --word-read-color: #2D3436;
+      --word-future-color: #2D3436;
+    }
+
+    /* ==========================================================================
+       RESET & BASE STYLES
+       ========================================================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Prevent double-tap zoom delay and improve mobile touch responsiveness */
+    button,
+    input,
+    select,
+    textarea,
+    .btn,
+    .btn-icon,
+    .custom-select,
+    .pill-btn,
+    .speed-preset-btn,
+    .reader-word {
+      touch-action: manipulation;
+    }
+
+    html, body {
+      min-height: 100%;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: var(--active-font);
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+      overflow-x: hidden;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      padding-left: env(safe-area-inset-left, 0px);
+      padding-right: env(safe-area-inset-right, 0px);
+      /* Ambient artistic blur orbs in canvas corners */
+      background-image:
+        radial-gradient(circle at 5% 5%, rgba(255, 107, 107, 0.12) 0%, transparent 35%),
+        radial-gradient(circle at 95% 90%, rgba(78, 205, 196, 0.14) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(255, 230, 109, 0.06) 0%, transparent 55%);
+      background-attachment: fixed;
+    }
+
+    /* Main Container */
+    .app-container {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      position: relative;
+    }
+
+    /* ==========================================================================
+       HEADER & NAVIGATION BAR (ARTISTIC FLAIR)
+       ========================================================================== */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      padding: 14px 22px;
+      background: var(--primary);
+      border: 4px solid var(--border-color);
+      border-radius: 20px;
+      margin-bottom: 24px;
+      box-shadow: 6px 6px 0px 0px var(--shadow-ink);
+      transition: all 0.2s ease;
+    }
+
+    .brand-area {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 9999px;
+      background: var(--accent);
+      border: 3px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-main);
+      font-size: 24px;
+      font-weight: 900;
+      box-shadow: 4px 4px 0px 0px var(--shadow-ink);
+      flex-shrink: 0;
+      transition: transform 0.15s ease;
+    }
+
+    .brand-icon:hover {
+      transform: rotate(-6deg) scale(1.05);
+    }
+
+    .brand-logo-img {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      border: 3px solid var(--border-color);
+      box-shadow: 4px 4px 0px 0px var(--shadow-ink);
+      object-fit: cover;
+      background: #3B82F6;
+      flex-shrink: 0;
+      transition: transform 0.15s ease;
+    }
+
+    .brand-logo-img:hover {
+      transform: rotate(-4deg) scale(1.05);
+    }
+
+    .btn-install-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 5px;
+      object-fit: cover;
+      display: inline-block;
+    }
+
+    .ios-modal-logo {
+      width: 76px;
+      height: 76px;
+      border-radius: 20px;
+      border: 3px solid var(--border-color);
+      box-shadow: 4px 4px 0px 0px var(--shadow-ink);
+      margin: 0 auto 12px;
+      display: block;
+      object-fit: cover;
+    }
+
+    .brand-title {
+      font-size: 1.45rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+      display: flex;
+      flex-direction: column;
+      text-transform: uppercase;
+      text-shadow: 2px 2px 0px var(--shadow-ink);
+    }
+
+    .brand-subtitle {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      text-shadow: 1px 1px 0px var(--shadow-ink);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 14px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      border-radius: 9999px;
+      background: var(--accent);
+      color: var(--text-main);
+      border: 2px solid var(--border-color);
+      box-shadow: 3px 3px 0px 0px var(--shadow-ink);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: #10B981;
+      border: 1.5px solid var(--border-color);
+    }
+
+    .status-dot.offline {
+      background-color: #F59E0B;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    /* Buttons & Controls (Artistic Neo-Brutalist) */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 14px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 800;
+      border: 3px solid var(--border-color);
+      cursor: pointer;
+      transition: transform 0.12s ease, background-color 0.12s ease, box-shadow 0.12s ease;
+      white-space: nowrap;
+      user-select: none;
+      box-shadow: 4px 4px 0px 0px var(--shadow-ink);
+    }
+
+    .btn:active {
+      transform: translate(2px, 2px) !important;
+      box-shadow: 1px 1px 0px 0px var(--shadow-ink) !important;
+    }
+
+    .btn:focus-visible {
+      outline: 3px solid var(--secondary);
+      outline-offset: 2px;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: #FFFFFF;
+      box-shadow: 4px 4px 0px 0px var(--shadow-ink);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+      transform: translate(-1px, -1px);
+      box-shadow: 5px 5px 0px 0px var(--shadow-ink);
+    }
+
+    .btn-secondary {
+      background-color: #FFFFFF;
+      color: var(--text-main);
+      box-shadow: 4px 4px 0px 0px var(--shadow-ink);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--bg-subtle);
+      transform: translate(-1px, -1px);
+      box-shadow: 5px 5px 0px 0px var(--shadow-ink);
+    }
+
+    .btn-icon {
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--secondary);
+      color: var(--text-main);
+      border: 2px solid var(--border-color);
+      box-shadow: 3px 3px 0px 0px var(--shadow-ink);
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
+    }
+
+    .btn-icon:hover {
+      background-color: var(--secondary-hover);
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0px 0px var(--shadow-ink);
+    }
+
+    .btn-icon:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px 0px var(--shadow-ink);
+    }
+
+    .btn-install {
+      background: var(--secondary);
+      color: var(--text-main);
+      border: 2px solid var(--border-color);
+      box-shadow: 3px 3px 0px 0px var(--shadow-ink);
+      font-weight: 800;
+      border-radius: 12px;
+      padding: 8px 16px;
+    }
+
+    .btn-install:hover {
+      background: var(--secondary-hover);
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0px 0px var(--shadow-ink);
+    }
+
+    /* Dropdowns and select */
+    .custom-select {
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 800;
+      background-color: #FFFFFF;
+      color: var(--text-main);
+      border: 2px solid var(--border-color);
+      box-shadow: 3px 3px 0px 0px var(--shadow-ink);
+      cursor: pointer;
+      outline: none;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
+    }
+
+    .custom-select:hover {
+      background-color: var(--bg-subtle);
+    }
+
+    .custom-select:focus, .custom-select:active {
+      transform: translate(1px, 1px);
+      box-shadow: 2px 2px 0px 0px var(--shadow-ink);
+    }
+
+    /* ==========================================================================
+       VIEW CONTAINER & TRANSITIONS
+       ========================================================================== */
+    .view-panel {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .view-panel.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==========================================================================
+       INPUT VIEW (EDITOR / SETUP - ARTISTIC FLAIR)
+       ========================================================================== */
+    .input-card {
+      background: var(--bg-card);
+      border: 4px solid var(--border-color);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 10px 10px 0px 0px var(--shadow-ink);
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Compartmentalized Segmented Navigation Bar */
+    .compartment-tabs {
+      display: flex;
+      gap: 10px;
+      background: var(--bg-subtle);
+      border: 3px solid var(--border-color);
+      border-radius: 18px;
+      padding: 8px;
+      box-shadow: 4px 4px 0px 0px var(--shadow-ink);
+    }
+
+    .c-tab-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 50px;
+      padding: 10px 18px;
+      border-radius: 12px;
+      border: 2.5px solid transparent;
+      background: transparent;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .c-tab-btn:hover {
+      background: rgba(0, 0, 0, 0.04);
+      transform: translate(-1px, -1px);
+    }
+
+    .c-tab-btn.active {
+      background: #FFFFFF;
+      border-color: var(--border-color);
+      box-shadow: 3px 3px 0px 0px var(--shadow-ink);
+      color: var(--text-main);
+    }
+
+    [data-theme="dark"] .c-tab-btn.active {
+      background: #1E293B;
+      color: #FFFFFF;
+    }
+
+    .c-tab-icon {
+      font-size: 1.25rem;
+    }
+
+    .c-tab-title {
+      font-weight: 900;
+    }
+
+    .c-tab-badge {
+      font-size: 0.72rem;
+      background: var(--accent);
+      color: var(--text-main);
+      border: 1.5px solid var(--border-color);
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-weight: 900;
+      box-shadow: 1.5px 1.5px 0px 0px var(--shadow-ink);
+    }
+
+    /* Compartment Panels */
+    .compartment-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      animation: fadeIn 0.15s ease-out;
+    }
+
+    /* Section Header within Compartments */
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .section-title-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-title-left h2 {
+      font-size: 1.35rem;
+      font-weight: 900;
+      margin: 0;
+      color: var(--text-main);
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+    }
+
+    .section-subtitle {
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin: 2px 0 0 0;
+      text-transform: none;
+    }
+
+    .quick-helpers {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .quick-helper-link {
+      background: var(--bg-subtle);
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      padding: 7px 14px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--text-main);
+      cursor: pointer;
+      box-shadow: 2px 2px 0px 0px var(--shadow-ink);
+      transition: all 0.12s ease;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .quick-helper-link:hover {
+      background: var(--accent);
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0px 0px var(--shadow-ink);
+    }
+
+    .btn-sm {
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      border-radius: 10px;
+    }
+
+    /* ========================================================================
+       COMPARTMENT 2: STORY LIBRARY (CARD GRID)
+       ======================================================================== */
+    .sample-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .sample-story-card {
+      background: var(--bg-card);
+      border: 3px solid var(--border-color);
+      border-radius: 20px;
+      box-shadow: 5px 5px 0px 0px var(--shadow-ink);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    .sample-story-card:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 7px 7px 0px 0px var(--shadow-ink);
+    }
+
+    .card-badge-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .grade-tag {
+      font-size: 0.76rem;
+      font-weight: 900;
+      padding: 3px 9px;
+      border-radius: 6px;
+      border: 1.5px solid var(--border-color);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .grade-prek { background: #E0F2FE; color: #0369A1; }
+    .grade-g1 { background: #FEF3C7; color: #B45309; }
+    .grade-g2 { background: #DCFCE7; color: #15803D; }
+
+    .reading-time-tag {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--text-muted);
+    }
+
+    .card-body {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .card-icon {
+      font-size: 34px;
+      line-height: 1;
+      padding: 10px;
+      background: var(--bg-subtle);
+      border: 2px solid var(--border-color);
+      border-radius: 14px;
+      box-shadow: 2px 2px 0px 0px var(--shadow-ink);
+      flex-shrink: 0;
+    }
+
+    .card-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .card-title {
+      font-size: 1.18rem;
+      font-weight: 900;
+      color: var(--text-main);
+      margin: 0;
+    }
+
+    .card-excerpt {
+      font-size: 0.88rem;
+      line-height: 1.5;
+      color: var(--text-muted);
+      margin: 0;
+      font-style: italic;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: auto;
+      padding-top: 8px;
+    }
+
+    .card-actions .btn {
+      flex: 1;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+    }
+
+    /* ========================================================================
+       COMPARTMENT 3: SETTINGS DASHBOARD
+       ======================================================================== */
+    .settings-compartment-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .setting-box {
+      background: var(--bg-subtle);
+      border: 3px solid var(--border-color);
+      border-radius: 20px;
+      box-shadow: 4px 4px 0px 0px var(--shadow-ink);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .setting-tip {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin: 0;
+      line-height: 1.45;
+    }
+
+    .voice-picker-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .font-size-adjust-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .highlight-style-picker {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .style-choice-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 2px solid var(--border-color);
+      background: #FFFFFF;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--text-main);
+      box-shadow: 2px 2px 0px 0px var(--shadow-ink);
+      transition: all 0.12s ease;
+    }
+
+    [data-theme="dark"] .style-choice-btn {
+      background: #1E293B;
+      color: #F8FAFC;
+    }
+
+    .style-choice-btn:hover {
+      background: var(--bg-subtle);
+      transform: translate(-1px, -1px);
+    }
+
+    .style-choice-btn.active {
+      background: var(--accent);
+      border-color: var(--border-color);
+      box-shadow: 3px 3px 0px 0px var(--shadow-ink);
+    }
+
+    .style-preview {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.76rem;
+      font-weight: 900;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+    }
+
+    .style-preview.classic { background: #FFE66D; color: #2D3436; }
+    .style-preview.bubble { background: #38BDF8; color: #FFFFFF; border-radius: 999px; }
+    .style-preview.neon { background: #A3E635; color: #1E293B; }
+    .style-preview.underline { background: #FEE2E2; color: #991B1B; border-bottom: 3px solid #E11D48; }
+
+    .settings-bottom-actions {
+      display: flex;
+      justify-content: flex-end;
+      padding-top: 10px;
+    }
+
+    .speed-pill-mini {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      background: var(--bg-subtle);
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      box-shadow: 2px 2px 0px 0px var(--shadow-ink);
+    }
+
+    .story-textarea-wrap {
+      position: relative;
+      width: 100%;
+    }
+
+    .textarea-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      gap: 10px;
+    }
+
+    .storage-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: var(--bg-subtle);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      border: 1.5px solid var(--border-color);
+      transition: all 0.2s ease;
+    }
+
+    .storage-status-pill.saved {
+      color: #1B5E20;
+      background: #E8F5E9;
+      border-color: #2E7D32;
+    }
+
+    [data-theme="dark"] .storage-status-pill.saved {
+      background: #1B5E20;
+      color: #E8F5E9;
+      border-color: #81C784;
+    }
+
+    .btn-clear-text {
+      background: transparent;
+      border: none;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 8px;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-clear-text:hover {
+      color: #D32F2F;
+      background: rgba(211, 47, 47, 0.08);
+    }
+
+    .story-textarea {
+      width: 100%;
+      min-height: 240px;
+      padding: 20px;
+      border-radius: 18px;
+      font-family: inherit;
+      font-size: 1.2rem;
+      line-height: 1.7;
+      color: var(--text-main);
+      background: var(--bg-main);
+      border: 3px solid var(--border-color);
+      box-shadow: 4px 4px 0px 0px var(--shadow-ink);
+      resize: vertical;
+      outline: none;
+      font-weight: 600;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    }
+
+    .story-textarea:focus {
+      border-color: var(--border-color);
+      background: #FFFFFF;
+      box-shadow: 6px 6px 0px 0px var(--primary);
+    }
+
+    /* File dropzone */
+    .dropzone-container {
+      border: 3px dashed var(--border-color);
+      background-color: var(--bg-subtle);
+      border-radius: 18px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 4px 4px 0px 0px var(--shadow-ink);
+    }
+
+    .dropzone-container:hover, .dropzone-container.drag-over {
+      background-color: var(--accent);
+      transform: translate(-1px, -1px);
+      box-shadow: 5px 5px 0px 0px var(--shadow-ink);
+    }
+
+    .dropzone-icon {
+      font-size: 32px;
+    }
+
+    .dropzone-text {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .dropzone-hint {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    /* Reader Settings Bar on Input page */
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+      background: var(--bg-subtle);
+      border: 3px solid var(--border-color);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 4px 4px 0px 0px var(--shadow-ink);
+    }
+
+    .setting-item {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .setting-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .setting-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .setting-value-badge {
+      background: var(--accent);
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      padding: 3px 10px;
+      font-size: 0.85rem;
+      font-weight: 900;
+      color: var(--text-main);
+      box-shadow: 2px 2px 0px 0px var(--shadow-ink);
+    }
+
+    .slider-range {
+      width: 100%;
+      height: 10px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .speed-presets {
+      display: flex;
+      gap: 6px;
+    }
+
+    .speed-preset-btn {
+      flex: 1;
+      padding: 6px 8px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      border-radius: 8px;
+      border: 2px solid var(--border-color);
+      background: #FFFFFF;
+      color: var(--text-main);
+      box-shadow: 2px 2px 0px 0px var(--shadow-ink);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.12s ease;
+    }
+
+    .speed-preset-btn:hover {
+      background: var(--bg-subtle);
+      transform: translate(-1px, -1px);
+    }
+
+    .speed-preset-btn.active {
+      background: var(--primary);
+      color: #FFFFFF;
+      box-shadow: 1px 1px 0px 0px var(--shadow-ink);
+      transform: translate(1px, 1px);
+    }
+
+    .toggle-switch-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 52px;
+      height: 28px;
+      background-color: var(--border-color);
+      border-radius: 9999px;
+      border: 2px solid var(--border-color);
+      transition: background-color 0.2s ease;
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: var(--accent);
+      border: 1.5px solid var(--border-color);
+      box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease;
+    }
+
+    input[type="checkbox"]:checked + .toggle-switch::after {
+      transform: translateX(24px);
+      background-color: var(--secondary);
+    }
+
+    .stats-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding-top: 12px;
+      border-top: 3px solid var(--border-color);
+    }
+
+    .stats-info {
+      display: flex;
+      gap: 18px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .stat-item strong {
+      color: var(--text-main);
+      font-weight: 900;
+    }
+
+    .btn-launch {
+      padding: 16px 36px;
+      font-size: 1.25rem;
+      border-radius: 18px;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: 4px solid var(--border-color);
+      box-shadow: 6px 6px 0px 0px var(--shadow-ink);
+      font-weight: 900;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
+    }
+
+    .btn-launch:hover {
+      background: var(--primary-hover);
+      box-shadow: 8px 8px 0px 0px var(--shadow-ink);
+      transform: translate(-2px, -2px);
+    }
+
+    .btn-launch:active {
+      box-shadow: 1px 1px 0px 0px var(--shadow-ink) !important;
+      transform: translate(3px, 3px) !important;
+    }
+
+    /* ==========================================================================
+       READER VIEW (ARTISTIC FLAIR KARAOKE VIEWPORT)
+       ========================================================================== */
+    .reader-card {
+      background: var(--bg-card);
+      border: 4px solid var(--border-color);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 12px 12px 0px 0px var(--shadow-ink);
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 520px;
+      position: relative;
+    }
+
+    /* Progress bar */
+    .progress-bar-container {
+      width: 100%;
+      height: 14px;
+      background: #E0E0E0;
+      border: 2px solid var(--border-color);
+      border-radius: 9999px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      border-right: 2px solid var(--border-color);
+      border-radius: 9999px;
+      transition: width 0.2s ease-out;
+    }
+
+    /* Reader Top Bar */
+    .reader-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 18px;
+      border-bottom: 3px solid var(--border-color);
+      margin-bottom: 18px;
+    }
+
+    .reader-left-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .reader-right-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .reader-stat-badge {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--text-main);
+      background: var(--accent);
+      border: 2px solid var(--border-color);
+      padding: 6px 14px;
+      border-radius: 12px;
+      box-shadow: 3px 3px 0px 0px var(--shadow-ink);
+    }
+
+    .reader-stat-badge strong {
+      color: var(--primary);
+    }
+
+    /* Interactive Words Area */
+    .reading-content-stage {
+      flex: 1;
+      padding: 24px 16px;
+      overflow-y: auto;
+      max-height: 58vh;
+      font-size: var(--reader-font-size);
+      line-height: var(--reader-line-height);
+      color: var(--text-main);
+      scroll-behavior: smooth;
+      user-select: text;
+      font-weight: 700;
+    }
+
+    .story-paragraph {
+      margin-bottom: 1.5em;
+    }
+
+    /* Word Token Styling */
+    .reader-word {
+      display: inline-block;
+      padding: 4px 8px;
+      margin: 4px 4px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: inherit;
+      line-height: inherit;
+      background: transparent;
+      border: 2px solid transparent;
+      transition: background-color 0.12s ease, color 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease;
+      color: var(--word-future-color);
+      vertical-align: baseline;
+    }
+
+    .reader-word:hover {
+      background-color: var(--bg-subtle);
+      border-color: var(--border-color);
+    }
+
+    .reader-word.read-word {
+      color: var(--word-read-color);
+      opacity: var(--word-read-opacity);
+    }
+
+    /* ACTIVE HIGHLIGHT (ARTISTIC FLAIR POP) */
+    .reader-word.active-word {
+      background-color: var(--accent) !important;
+      color: var(--text-main) !important;
+      font-weight: 900 !important;
+      border: 2px solid var(--border-color) !important;
+      border-radius: 14px !important;
+      padding: 4px 14px !important;
+      box-shadow: 4px 4px 0px 0px var(--shadow-ink) !important;
+      transform: scale(1.08) rotate(-1.5deg) !important;
+      z-index: 10 !important;
+      position: relative !important;
+    }
+
+    body[data-highlight="bubble"] .reader-word.active-word {
+      background-color: #38BDF8 !important;
+      color: #FFFFFF !important;
+      border-radius: 9999px !important;
+    }
+
+    body[data-highlight="neon"] .reader-word.active-word {
+      background-color: #A3E635 !important;
+      color: #1E293B !important;
+    }
+
+    body[data-highlight="underline"] .reader-word.active-word {
+      background-color: #FEE2E2 !important;
+      color: #991B1B !important;
+      border-bottom: 4px solid #E11D48 !important;
+    }
+
+    /* Current Word Spotlight Card */
+    .word-spotlight-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      background: var(--bg-subtle);
+      border: 3px solid var(--border-color);
+      border-radius: 18px;
+      padding: 14px 22px;
+      margin-top: 16px;
+      box-shadow: 4px 4px 0px 0px var(--shadow-ink);
+    }
+
+    .spotlight-word-display {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+    }
+
+    .spotlight-label {
+      font-size: 0.8rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    .spotlight-word-text {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--primary);
+      letter-spacing: 0.02em;
+      text-shadow: 1px 1px 0px var(--shadow-ink);
+    }
+
+    .spotlight-spelling {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.12em;
+    }
+
+    /* Reader Main Navigation Controls (Floating Bottom Bar) */
+    .reader-controls-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      padding-top: 20px;
+      border-top: 3px solid var(--border-color);
+      margin-top: 16px;
+    }
+
+    .primary-nav-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-nav-large {
+      padding: 12px 24px;
+      border-radius: 16px;
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    .btn-play-pause {
+      min-width: 150px;
+      padding: 14px 28px;
+      font-size: 1.15rem;
+      font-weight: 900;
+      border-radius: 9999px;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: 4px solid var(--border-color);
+      box-shadow: 6px 6px 0px 0px var(--shadow-ink);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .btn-play-pause:hover {
+      background: var(--primary-hover);
+      transform: translate(-1px, -1px);
+      box-shadow: 8px 8px 0px 0px var(--shadow-ink);
+    }
+
+    .btn-play-pause:active {
+      transform: translate(3px, 3px) !important;
+      box-shadow: 1px 1px 0px 0px var(--shadow-ink) !important;
+    }
+
+    .btn-play-pause.is-playing {
+      background: var(--accent);
+      color: var(--text-main);
+    }
+
+    #btn-prev-word {
+      background: #FFFFFF;
+      border: 3px solid var(--border-color);
+      border-radius: 9999px;
+      box-shadow: 4px 4px 0px 0px var(--shadow-ink);
+      color: var(--text-main);
+      font-weight: 800;
+    }
+
+    #btn-prev-word:hover {
+      background: var(--bg-subtle);
+      transform: translate(-1px, -1px);
+      box-shadow: 5px 5px 0px 0px var(--shadow-ink);
+    }
+
+    #btn-next-word {
+      background: var(--secondary);
+      border: 3px solid var(--border-color);
+      border-radius: 9999px;
+      box-shadow: 4px 4px 0px 0px var(--shadow-ink);
+      color: var(--text-main);
+      font-weight: 800;
+    }
+
+    #btn-next-word:hover {
+      background: var(--secondary-hover);
+      transform: translate(-1px, -1px);
+      box-shadow: 5px 5px 0px 0px var(--shadow-ink);
+    }
+
+    #btn-repeat-word {
+      background: var(--accent);
+      border: 3px solid var(--border-color);
+      border-radius: 9999px;
+      box-shadow: 4px 4px 0px 0px var(--shadow-ink);
+      color: var(--text-main);
+      font-weight: 800;
+    }
+
+    #btn-repeat-word:hover {
+      background: var(--accent-hover);
+      transform: translate(-1px, -1px);
+      box-shadow: 5px 5px 0px 0px var(--shadow-ink);
+    }
+
+    .reader-speed-tool {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-subtle);
+      border: 2px solid var(--border-color);
+      padding: 8px 14px;
+      border-radius: 14px;
+      box-shadow: 3px 3px 0px 0px var(--shadow-ink);
+    }
+
+    .reader-speed-tool input[type="range"] {
+      width: 100px;
+      accent-color: var(--primary);
+    }
+
+    /* ==========================================================================
+       CELEBRATION / COMPLETION MODAL & CONFETTI CANVAS
+       ========================================================================== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(45, 52, 54, 0.65);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .celebration-card {
+      background: var(--bg-card);
+      border: 4px solid var(--border-color);
+      border-radius: 28px;
+      padding: 36px 30px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 14px 14px 0px 0px var(--shadow-ink);
+      position: relative;
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.85); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .celebration-icon {
+      font-size: 64px;
+      margin-bottom: 12px;
+      display: inline-block;
+      animation: bounce 1s infinite alternate;
+    }
+
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-10px); }
+    }
+
+    .celebration-title {
+      font-size: 1.9rem;
+      font-weight: 900;
+      color: var(--text-main);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+    }
+
+    .celebration-message {
+      font-size: 1rem;
+      color: var(--text-muted);
+      margin-bottom: 22px;
+      line-height: 1.6;
+      font-weight: 600;
+    }
+
+    .celebration-stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      background: var(--bg-subtle);
+      border: 3px solid var(--border-color);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 24px;
+      box-shadow: 4px 4px 0px 0px var(--shadow-ink);
+    }
+
+    .c-stat-box {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .c-stat-val {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: var(--primary);
+      text-shadow: 1px 1px 0px var(--shadow-ink);
+    }
+
+    .c-stat-lbl {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .celebration-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    #confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    /* iOS PWA Install Guide Modal */
+    .ios-guide-box {
+      text-align: left;
+      margin-top: 14px;
+      background: var(--bg-subtle);
+      border: 2px solid var(--border-color);
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 0.9rem;
+      color: var(--text-main);
+    }
+
+    .ios-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .ios-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: 2px solid var(--border-color);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+
+    /* Keyboard shortcuts guide pill in footer */
+    .shortcuts-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .shortcut-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .kbd-key {
+      background: var(--accent);
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 900;
+      color: var(--text-main);
+      box-shadow: 2px 2px 0px 0px var(--shadow-ink);
+    }
+
+    /* ==========================================================================
+       MOBILE & TOUCH RESPONSIVE OPTIMIZATIONS
+       ========================================================================== */
+    @media (max-width: 640px) {
+      :root {
+        --reader-font-size: 26px;
+        --reader-line-height: 1.75;
+      }
+
+      .app-container {
+        padding: 10px 12px;
+      }
+
+      /* Header optimizations */
+      .app-header {
+        padding: 10px 14px;
+        border-width: 3px;
+        border-radius: 16px;
+        box-shadow: 4px 4px 0px 0px var(--shadow-ink);
+        margin-bottom: 16px;
+        gap: 10px;
+      }
+
+      .brand-area {
+        gap: 10px;
+      }
+
+      .brand-icon {
+        width: 42px;
+        height: 42px;
+        font-size: 22px;
+        border-width: 2.5px;
+        box-shadow: 3px 3px 0px 0px var(--shadow-ink);
+      }
+
+      .brand-title {
+        font-size: 1.2rem;
+      }
+
+      .brand-subtitle {
+        font-size: 0.7rem;
+      }
+
+      .header-actions {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .header-actions .custom-select {
+        flex: 1 1 calc(50% - 4px);
+        min-width: 0;
+        height: 44px;
+        font-size: 0.78rem;
+        padding: 6px 8px;
+        border-width: 2.5px;
+      }
+
+      .header-actions .status-pill {
+        padding: 6px 10px;
+        font-size: 0.72rem;
+        height: 44px;
+        display: inline-flex;
+        align-items: center;
+        order: 3;
+      }
+
+      .header-actions .btn-install {
+        order: 4;
+        min-height: 44px;
+        padding: 6px 12px;
+        font-size: 0.78rem;
+        margin-left: auto;
+      }
+
+      .header-actions .btn-icon {
+        order: 5;
+        min-width: 44px;
+        min-height: 44px;
+      }
+
+      /* Sample Stories Bar: Smooth horizontal touch scroll strip */
+      .sample-stories-bar {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 2px 2px 8px;
+        gap: 8px;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+
+      .sample-stories-bar::-webkit-scrollbar {
+        display: none;
+      }
+
+      .sample-label {
+        white-space: nowrap;
+        align-self: center;
+        font-size: 0.8rem;
+        font-weight: 800;
+        flex-shrink: 0;
+      }
+
+      .pill-btn {
+        flex-shrink: 0;
+        min-height: 44px;
+        padding: 8px 16px;
+        font-size: 0.84rem;
+        border-width: 2.5px;
+        box-shadow: 3px 3px 0px 0px var(--shadow-ink);
+      }
+
+      /* Story Input Card */
+      .input-card {
+        padding: 16px 12px;
+        border-width: 3px;
+        border-radius: 20px;
+        box-shadow: 6px 6px 0px 0px var(--shadow-ink);
+        gap: 16px;
+      }
+
+      .section-title {
+        font-size: 1.15rem;
+      }
+
+      .textarea-header-bar {
+        margin-bottom: 6px;
+      }
+
+      .storage-status-pill {
+        font-size: 0.74rem;
+        padding: 3px 8px;
+      }
+
+      .btn-clear-text {
+        font-size: 0.76rem;
+        padding: 3px 6px;
+      }
+
+      .story-textarea {
+        min-height: 160px;
+        font-size: 1.05rem;
+        padding: 14px;
+        border-width: 2.5px;
+        border-radius: 14px;
+      }
+
+      .dropzone-container {
+        padding: 14px 12px;
+        border-width: 2.5px;
+        border-radius: 14px;
+      }
+
+      .dropzone-icon {
+        font-size: 26px;
+      }
+
+      .dropzone-text {
+        font-size: 0.85rem;
+      }
+
+      .dropzone-hint {
+        font-size: 0.75rem;
+      }
+
+      /* Settings Grid */
+      .settings-grid {
+        padding: 14px 12px;
+        gap: 16px;
+        border-width: 2.5px;
+        border-radius: 16px;
+        grid-template-columns: 1fr;
+      }
+
+      .setting-title {
+        font-size: 0.88rem;
+      }
+
+      .slider-range {
+        height: 16px;
+      }
+
+      .speed-presets {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+      }
+
+      .speed-preset-btn {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.82rem;
+        padding: 6px 2px;
+        border-width: 2px;
+      }
+
+      .stats-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+      }
+
+      .stats-info {
+        justify-content: space-around;
+        font-size: 0.85rem;
+      }
+
+      .btn-launch {
+        width: 100%;
+        min-height: 52px;
+        font-size: 1.15rem;
+        padding: 14px 20px;
+        justify-content: center;
+        border-width: 3px;
+        box-shadow: 4px 4px 0px 0px var(--shadow-ink);
+      }
+
+      /* Reader Card */
+      .reader-card {
+        padding: 16px 12px;
+        border-width: 3px;
+        border-radius: 20px;
+        box-shadow: 6px 6px 0px 0px var(--shadow-ink);
+      }
+
+      .progress-bar-container {
+        height: 10px;
+        margin-bottom: 12px;
+      }
+
+      .reader-top-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding-bottom: 12px;
+        margin-bottom: 12px;
+        border-bottom-width: 2.5px;
+      }
+
+      .reader-left-controls {
+        display: flex;
+        gap: 6px;
+      }
+
+      .reader-left-controls .btn {
+        min-height: 44px;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        border-width: 2px;
+        box-shadow: 2.5px 2.5px 0px 0px var(--shadow-ink);
+      }
+
+      .reader-right-controls {
+        gap: 6px;
+        margin-left: auto;
+      }
+
+      .reader-right-controls .btn-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 1.05rem;
+        border-width: 2px;
+      }
+
+      .reader-stat-badge {
+        width: 100%;
+        text-align: center;
+        font-size: 0.85rem;
+        padding: 6px 12px;
+        margin-top: 4px;
+        border-radius: 10px;
+        box-shadow: 2px 2px 0px 0px var(--shadow-ink);
+      }
+
+      /* Reading Stage */
+      .reading-content-stage {
+        padding: 14px 8px;
+        max-height: 48vh;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .reader-word {
+        padding: 3px 6px;
+        margin: 3px 2px;
+        border-radius: 8px;
+        font-size: clamp(22px, 5.8vw, 30px);
+      }
+
+      .reader-word.active-word {
+        padding: 4px 10px !important;
+        border-radius: 12px !important;
+        transform: scale(1.05) !important;
+        box-shadow: 3px 3px 0px 0px var(--shadow-ink) !important;
+      }
+
+      /* Word Spotlight Bar on Mobile */
+      .word-spotlight-bar {
+        padding: 12px 14px;
+        border-radius: 16px;
+        border-width: 2.5px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        margin-top: 12px;
+        box-shadow: 3px 3px 0px 0px var(--shadow-ink);
+      }
+
+      .spotlight-word-display {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .spotlight-word-text {
+        font-size: 1.5rem;
+      }
+
+      .spotlight-spelling {
+        font-size: 0.85rem;
+      }
+
+      #btn-repeat-word {
+        width: 100%;
+        min-height: 44px;
+        justify-content: center;
+        font-size: 0.9rem;
+        border-width: 2.5px;
+      }
+
+      /* Reader Floating Bottom Navigation (Sticky Thumb Deck) */
+      .reader-controls-bar {
+        position: sticky;
+        bottom: 0;
+        background: var(--bg-card);
+        padding-top: 12px;
+        padding-bottom: max(6px, env(safe-area-inset-bottom));
+        margin-top: 12px;
+        border-top: 2.5px solid var(--border-color);
+        z-index: 40;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .primary-nav-group {
+        display: grid;
+        grid-template-columns: 1fr 1.35fr 1fr;
+        gap: 6px;
+        width: 100%;
+      }
+
+      #btn-prev-word {
+        min-height: 46px;
+        font-size: 0.9rem;
+        padding: 6px 8px;
+        justify-content: center;
+        border-width: 2.5px;
+        box-shadow: 3px 3px 0px 0px var(--shadow-ink);
+      }
+
+      #btn-play-pause {
+        min-height: 48px;
+        font-size: 1rem;
+        padding: 6px 8px;
+        justify-content: center;
+        min-width: unset;
+        width: 100%;
+        border-width: 3px;
+        box-shadow: 4px 4px 0px 0px var(--shadow-ink);
+      }
+
+      #btn-next-word {
+        min-height: 46px;
+        font-size: 0.9rem;
+        padding: 6px 8px;
+        justify-content: center;
+        border-width: 2.5px;
+        box-shadow: 3px 3px 0px 0px var(--shadow-ink);
+      }
+
+      .reader-speed-tool {
+        width: 100%;
+        justify-content: space-between;
+        padding: 8px 12px;
+        min-height: 42px;
+        box-shadow: 2px 2px 0px 0px var(--shadow-ink);
+      }
+
+      .reader-speed-tool input[type="range"] {
+        flex: 1;
+        margin: 0 10px;
+      }
+
+      /* Mobile Gesture Tip */
+      .mobile-gesture-tip {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.74rem;
+        font-weight: 800;
+        color: var(--text-muted);
+        background: var(--bg-subtle);
+        border: 2px dashed var(--border-color);
+        border-radius: 9999px;
+        padding: 5px 12px;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+
+      /* Hide keyboard shortcuts list on mobile touch screens */
+      .shortcuts-bar {
+        display: none;
+      }
+
+      /* Modals on mobile */
+      .celebration-card {
+        padding: 24px 18px;
+        border-radius: 20px;
+        border-width: 3px;
+        box-shadow: 8px 8px 0px 0px var(--shadow-ink);
+        max-width: 94%;
+      }
+
+      .celebration-icon {
+        font-size: 48px;
+      }
+
+      .celebration-title {
+        font-size: 1.5rem;
+      }
+
+      .celebration-stats-grid {
+        gap: 8px;
+        padding: 12px;
+      }
+
+      .c-stat-val {
+        font-size: 1.3rem;
+      }
+
+      .celebration-actions {
+        flex-direction: column;
+        width: 100%;
+        gap: 8px;
+      }
+
+      .celebration-actions .btn {
+        width: 100%;
+        min-height: 46px;
+        justify-content: center;
+      }
+    }
+
+    /* Small phone optimizations (e.g. 360px - 400px screen width) */
+    @media (max-width: 420px) {
+      .brand-title {
+        font-size: 1.05rem;
+      }
+
+      .brand-subtitle {
+        display: none;
+      }
+
+      .header-actions .custom-select {
+        font-size: 0.74rem;
+      }
+
+      #btn-prev-word,
+      #btn-next-word {
+        font-size: 0.82rem;
+        padding: 6px 4px;
+      }
+
+      #btn-play-pause {
+        font-size: 0.92rem;
+      }
+    }
+
+    /* ==========================================================================
+       IPAD & TABLET SPECIFIC OPTIMIZATIONS (768px - 1366px)
+       ========================================================================== */
+    @media (min-width: 768px) and (max-width: 1366px) {
+      .app-container {
+        max-width: 980px;
+        padding: 24px 28px;
+      }
+
+      .app-header {
+        padding: 16px 24px;
+        border-radius: 22px;
+      }
+
+      .brand-title {
+        font-size: 1.45rem;
+      }
+
+      .brand-logo-img {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+      }
+
+      .compartment-tabs {
+        padding: 8px;
+        border-radius: 18px;
+        gap: 12px;
+      }
+
+      .c-tab-btn {
+        min-height: 52px;
+        font-size: 1.05rem;
+        padding: 12px 20px;
+      }
+
+      .input-card {
+        padding: 30px;
+        border-radius: 24px;
+      }
+
+      .story-textarea {
+        min-height: 280px;
+        font-size: 1.28rem;
+        line-height: 1.8;
+        padding: 24px;
+      }
+
+      /* 2-Column Balanced Grid for iPad Story Library */
+      .sample-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+
+      /* 2-Column Balanced Grid for iPad Settings */
+      .settings-compartment-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+
+      /* Reader View on iPad */
+      .reader-card {
+        padding: 30px;
+        border-radius: 26px;
+        min-height: 580px;
+      }
+
+      .reading-content-stage {
+        padding: 36px 32px;
+        min-height: 380px;
+        line-height: 2.1;
+      }
+
+      .reader-word {
+        margin: 6px 6px;
+        padding: 6px 12px;
+      }
+
+      .reader-controls-bar {
+        padding: 16px 24px;
+        min-height: 84px;
+        gap: 16px;
+      }
+
+      #btn-prev-word,
+      #btn-next-word {
+        min-height: 56px;
+        min-width: 130px;
+        font-size: 1.15rem;
+      }
+
+      #btn-play-pause {
+        min-height: 60px;
+        min-width: 180px;
+        font-size: 1.25rem;
+      }
+
+      .btn-launch {
+        font-size: 1.3rem;
+        padding: 18px 40px;
+      }
+    }
+  </style>
+</head>
+
+<body data-theme="warm">
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header" role="banner" id="app-header">
+      <div class="brand-area" id="brand-area">
+        <img src="/logo.png" alt="Read Along Logo" class="brand-logo-img" id="app-brand-logo" />
+        <div class="brand-title">
+          <span>Read Along</span>
+          <span class="brand-subtitle">Karaoke Guided Reader</span>
+        </div>
+      </div>
+
+      <div class="header-actions" id="header-actions">
+        <!-- Font Selection -->
+        <select id="font-family-select" class="custom-select" aria-label="Reading Font Style" title="Select Font">
+          <option value="lexend" selected>Font: Lexend (Fluent)</option>
+          <option value="comic">Font: Comic (Friendly)</option>
+          <option value="dyslexic">Font: Atkinson (Clear)</option>
+          <option value="clean">Font: Clean Sans</option>
+        </select>
+
+        <!-- Theme Selection -->
+        <select id="theme-select" class="custom-select" aria-label="Color Palette Theme" title="Theme Color">
+          <option value="warm" selected>Theme: Artistic Flair</option>
+          <option value="crisp">Theme: Crisp White</option>
+          <option value="dark">Theme: Night Dark</option>
+          <option value="mint">Theme: Gentle Mint</option>
+        </select>
+
+        <!-- Network / Offline Status Badge -->
+        <div class="status-pill" id="status-pill" title="Network status">
+          <span class="status-dot" id="status-dot"></span>
+          <span id="status-text">Online</span>
+        </div>
+
+        <!-- PWA In-App Install Button -->
+        <button type="button" class="btn btn-install" id="btn-pwa-install" style="display: none;" aria-label="Install App as PWA">
+          <img src="/favicon.png" alt="" class="btn-install-icon" />
+          <span>Install App</span>
+        </button>
+
+        <!-- Shortcuts Help Button -->
+        <button type="button" class="btn-icon" id="btn-help-shortcuts" aria-label="Keyboard Shortcuts Help" title="Keyboard Shortcuts">
+          <span>⌨️</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main role="main" id="main-content">
+      
+      <!-- ======================================================================
+           VIEW 1: INPUT & COMPARTMENTALIZED DASHBOARD
+           ====================================================================== -->
+      <section class="view-panel active" id="view-input" aria-label="Story Input and Setup">
+        <div class="input-card" id="input-card">
+          
+          <!-- Compartmentalized Segmented Navigation Bar -->
+          <nav class="compartment-tabs" role="tablist" aria-label="Interface Sections" id="compartment-tabs">
+            <button type="button" class="c-tab-btn active" role="tab" id="tab-btn-main" aria-selected="true" aria-controls="panel-main">
+              <span class="c-tab-icon">📝</span>
+              <span class="c-tab-title">Story Canvas</span>
+            </button>
+            <button type="button" class="c-tab-btn" role="tab" id="tab-btn-samples" aria-selected="false" aria-controls="panel-samples">
+              <span class="c-tab-icon">📚</span>
+              <span class="c-tab-title">Story Library</span>
+              <span class="c-tab-badge">5 Stories</span>
+            </button>
+            <button type="button" class="c-tab-btn" role="tab" id="tab-btn-settings" aria-selected="false" aria-controls="panel-settings">
+              <span class="c-tab-icon">⚙️</span>
+              <span class="c-tab-title">Reading Settings</span>
+            </button>
+          </nav>
+
+          <!-- ==================================================================
+               COMPARTMENT 1: MAIN STORY CANVAS (SIMPLE, FOCUSED, CLUTTER-FREE)
+               ================================================================== -->
+          <div class="compartment-panel active" id="panel-main" role="tabpanel" aria-labelledby="tab-btn-main">
+            <div class="section-title">
+              <div class="section-title-left">
+                <span>✨</span>
+                <h2>Story Canvas</h2>
+              </div>
+              <div class="quick-helpers">
+                <button type="button" class="quick-helper-link" id="btn-goto-samples" title="Browse curated sample stories">
+                  <span>📚 Story Library</span>
+                </button>
+                <button type="button" class="quick-helper-link" id="btn-goto-settings" title="Adjust speed and voice settings">
+                  <span>⚙️ Speed &amp; Voice</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Story Textarea Input -->
+            <div class="story-textarea-wrap">
+              <div class="textarea-header-bar" id="textarea-header-bar">
+                <div class="storage-status-pill" id="storage-status-pill" title="Changes are automatically saved to your browser storage">
+                  <span class="storage-status-icon" id="storage-status-icon">💾</span>
+                  <span id="storage-status-text">Draft saved locally</span>
+                </div>
+                <button type="button" class="btn-clear-text" id="btn-clear-text" title="Clear story text">
+                  <span>🗑️ Clear text</span>
+                </button>
+              </div>
+              <textarea
+                id="story-input"
+                class="story-textarea"
+                placeholder="Type or paste any story here... Every single word will be highlighted karaoke-style as you read!"
+                aria-label="Story text to read"
+              ></textarea>
+            </div>
+
+            <!-- Compact Drag and Drop File Upload for .txt files -->
+            <div
+              class="dropzone-container"
+              id="file-dropzone"
+              role="button"
+              tabindex="0"
+              aria-label="Upload .txt story file"
+            >
+              <span class="dropzone-icon">📁</span>
+              <div class="dropzone-text-group">
+                <span class="dropzone-text">Tap or drag a <strong>.txt</strong> file here to import</span>
+                <span class="dropzone-hint">Compatible with iPad Files app, iCloud Drive, and Google Drive text files</span>
+              </div>
+              <input type="file" id="file-upload-input" accept=".txt,text/plain" style="display: none;" />
+            </div>
+
+            <!-- Stats & Big Prominent Launch Button Footer -->
+            <div class="stats-footer" id="stats-footer">
+              <div class="stats-info" id="stats-info">
+                <span class="stat-item"><strong id="stat-word-count">0</strong> words</span>
+                <span class="stat-item"><strong id="stat-read-time">0s</strong> est. read time</span>
+                <span class="stat-item speed-pill-mini" id="stat-current-speed">Speed: <strong id="stat-speed-val">100 WPM</strong></span>
+              </div>
+
+              <button type="button" class="btn btn-launch" id="btn-start-reading">
+                <span>Start Guided Reading 🚀</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- ==================================================================
+               COMPARTMENT 2: SAMPLE STORIES LIBRARY (IPAD 2-COLUMN CARD GRID)
+               ================================================================== -->
+          <div class="compartment-panel" id="panel-samples" role="tabpanel" aria-labelledby="tab-btn-samples" style="display: none;">
+            <div class="section-title">
+              <div class="section-title-left">
+                <span>📚</span>
+                <div>
+                  <h2>Curated Beginner Stories</h2>
+                  <p class="section-subtitle">Specially formatted for phonics recognition, natural cadence, and vocabulary building</p>
+                </div>
+              </div>
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-back-to-canvas-1">
+                <span>← Back to Canvas</span>
+              </button>
+            </div>
+
+            <!-- Responsive Cards Grid (Optimized for iPad Landscape & Portrait) -->
+            <div class="sample-cards-grid" id="sample-cards-grid">
+              
+              <!-- Card 1: The Curious Bunny -->
+              <div class="sample-story-card" id="card-sample-bunny">
+                <div class="card-badge-row">
+                  <span class="grade-tag grade-prek">Pre-K &amp; Kinder</span>
+                  <span class="reading-time-tag">⏱️ ~45s • 76 words</span>
+                </div>
+                <div class="card-body">
+                  <div class="card-icon" aria-hidden="true">🐰</div>
+                  <div class="card-meta">
+                    <h3 class="card-title">The Curious Bunny</h3>
+                    <p class="card-excerpt">"Barnaby loved jumping over little green moss rocks. One bright morning, he saw a glowing blue flower near the tall pine trees..."</p>
+                  </div>
+                </div>
+                <div class="card-actions">
+                  <button type="button" class="btn btn-secondary btn-load-sample" data-story="bunny" id="btn-sample-1">
+                    <span>Load to Canvas</span>
+                  </button>
+                  <button type="button" class="btn btn-primary btn-read-sample" data-story="bunny">
+                    <span>Read Now ▶</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Card 2: The Little Rocket -->
+              <div class="sample-story-card" id="card-sample-rocket">
+                <div class="card-badge-row">
+                  <span class="grade-tag grade-g1">Grade 1</span>
+                  <span class="reading-time-tag">⏱️ ~50s • 88 words</span>
+                </div>
+                <div class="card-body">
+                  <div class="card-icon" aria-hidden="true">🚀</div>
+                  <div class="card-meta">
+                    <h3 class="card-title">The Little Rocket</h3>
+                    <p class="card-excerpt">"Three, two, one, blast off! The silver rocket zoomed into the deep dark sky. Yellow stars twinkled through the round window..."</p>
+                  </div>
+                </div>
+                <div class="card-actions">
+                  <button type="button" class="btn btn-secondary btn-load-sample" data-story="rocket" id="btn-sample-2">
+                    <span>Load to Canvas</span>
+                  </button>
+                  <button type="button" class="btn btn-primary btn-read-sample" data-story="rocket">
+                    <span>Read Now ▶</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Card 3: Pip's Pancake Morning -->
+              <div class="sample-story-card" id="card-sample-pancakes">
+                <div class="card-badge-row">
+                  <span class="grade-tag grade-g1">Grade 1-2</span>
+                  <span class="reading-time-tag">⏱️ ~1 min • 105 words</span>
+                </div>
+                <div class="card-body">
+                  <div class="card-icon" aria-hidden="true">🥞</div>
+                  <div class="card-meta">
+                    <h3 class="card-title">Pip's Pancake Morning</h3>
+                    <p class="card-excerpt">"Pip the friendly little dragon put on his red chef hat and mixed sweet yellow batter. With a puff of friendly fire, the stove sizzled warmly..."</p>
+                  </div>
+                </div>
+                <div class="card-actions">
+                  <button type="button" class="btn btn-secondary btn-load-sample" data-story="pancakes" id="btn-sample-3">
+                    <span>Load to Canvas</span>
+                  </button>
+                  <button type="button" class="btn btn-primary btn-read-sample" data-story="pancakes">
+                    <span>Read Now ▶</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Card 4: The Singing Dolphin -->
+              <div class="sample-story-card" id="card-sample-dolphin">
+                <div class="card-badge-row">
+                  <span class="grade-tag grade-g2">Grade 2</span>
+                  <span class="reading-time-tag">⏱️ ~55s • 94 words</span>
+                </div>
+                <div class="card-body">
+                  <div class="card-icon" aria-hidden="true">🐬</div>
+                  <div class="card-meta">
+                    <h3 class="card-title">The Singing Dolphin</h3>
+                    <p class="card-excerpt">"Coral the friendly dolphin loved swimming through sparkly turquoise waves. Her cheerful whistle made sea turtles dance in circles..."</p>
+                  </div>
+                </div>
+                <div class="card-actions">
+                  <button type="button" class="btn btn-secondary btn-load-sample" data-story="dolphin" id="btn-sample-4">
+                    <span>Load to Canvas</span>
+                  </button>
+                  <button type="button" class="btn btn-primary btn-read-sample" data-story="dolphin">
+                    <span>Read Now ▶</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Card 5: The Secret Treehouse -->
+              <div class="sample-story-card" id="card-sample-treehouse">
+                <div class="card-badge-row">
+                  <span class="grade-tag grade-g2">Grade 2-3</span>
+                  <span class="reading-time-tag">⏱️ ~1.1 min • 112 words</span>
+                </div>
+                <div class="card-body">
+                  <div class="card-icon" aria-hidden="true">🌲</div>
+                  <div class="card-meta">
+                    <h3 class="card-title">The Secret Treehouse</h3>
+                    <p class="card-excerpt">"Deep inside the quiet oak woods, Maya and Sam discovered a cozy wooden treehouse with a golden telescope and glowing fireflies..."</p>
+                  </div>
+                </div>
+                <div class="card-actions">
+                  <button type="button" class="btn btn-secondary btn-load-sample" data-story="treehouse" id="btn-sample-5">
+                    <span>Load to Canvas</span>
+                  </button>
+                  <button type="button" class="btn btn-primary btn-read-sample" data-story="treehouse">
+                    <span>Read Now ▶</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ==================================================================
+               COMPARTMENT 3: SETTINGS DASHBOARD (CLEAN 2-COLUMN STRUCTURE)
+               ================================================================== -->
+          <div class="compartment-panel" id="panel-settings" role="tabpanel" aria-labelledby="tab-btn-settings" style="display: none;">
+            <div class="section-title">
+              <div class="section-title-left">
+                <span>⚙️</span>
+                <div>
+                  <h2>Reading &amp; Voice Settings</h2>
+                  <p class="section-subtitle">Customize speech pacing, pronunciation engine, dyslexia typography, and visual aids</p>
+                </div>
+              </div>
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-back-to-canvas-2">
+                <span>← Back to Canvas</span>
+              </button>
+            </div>
+
+            <div class="settings-compartment-grid">
+              
+              <!-- Setting Box 1: Reading Speed & Pacing -->
+              <div class="setting-box" id="setting-speed-box">
+                <div class="setting-header">
+                  <span class="setting-title">
+                    <span>⏱️</span> Reading Speed &amp; Pacing
+                  </span>
+                  <span class="setting-value-badge" id="wpm-display-badge">100 WPM</span>
+                </div>
+                <input
+                  type="range"
+                  id="input-wpm-slider"
+                  class="slider-range"
+                  min="40"
+                  max="240"
+                  step="10"
+                  value="100"
+                  aria-label="Speed Words Per Minute"
+                />
+                <div class="speed-presets">
+                  <button type="button" class="speed-preset-btn" data-wpm="60">🐢 60 Slow</button>
+                  <button type="button" class="speed-preset-btn active" data-wpm="100">🐕 100 Gentle</button>
+                  <button type="button" class="speed-preset-btn" data-wpm="140">🐇 140 Brisk</button>
+                  <button type="button" class="speed-preset-btn" data-wpm="180">🐆 180 Fast</button>
+                </div>
+                <p class="setting-tip">Lower speeds allow beginners to sound out each word comfortably.</p>
+              </div>
+
+              <!-- Setting Box 2: Voice & Speech Synthesis (TTS) -->
+              <div class="setting-box" id="setting-tts-box">
+                <div class="setting-header">
+                  <span class="setting-title">
+                    <span>🔊</span> Pronounce Word Aloud (TTS)
+                  </span>
+                  <label class="toggle-switch-wrap" for="toggle-speech-input">
+                    <input type="checkbox" id="toggle-speech-input" checked style="display: none;" />
+                    <span class="toggle-switch" aria-hidden="true"></span>
+                  </label>
+                </div>
+                <div class="voice-picker-row">
+                  <select id="voice-select" class="custom-select" style="flex: 1;" aria-label="Speech Voice"></select>
+                  <button type="button" class="btn btn-secondary" id="btn-test-voice" style="padding: 8px 14px; font-size: 0.85rem;">Test 🗣️</button>
+                </div>
+                <p class="setting-tip">Uses your iPad / device speech synthesizer with zero internet required.</p>
+              </div>
+
+              <!-- Setting Box 3: Visual Highlighting Theme -->
+              <div class="setting-box" id="setting-highlight-box">
+                <div class="setting-header">
+                  <span class="setting-title">
+                    <span>🎨</span> Karaoke Spotlight Style
+                  </span>
+                </div>
+                <div class="highlight-style-picker" id="highlight-style-picker">
+                  <button type="button" class="style-choice-btn active" data-style="classic">
+                    <span class="style-preview classic">Gold</span>
+                    <span>Classic Gold</span>
+                  </button>
+                  <button type="button" class="style-choice-btn" data-style="bubble">
+                    <span class="style-preview bubble">Bubble</span>
+                    <span>Sky Bubble</span>
+                  </button>
+                  <button type="button" class="style-choice-btn" data-style="neon">
+                    <span class="style-preview neon">Lime</span>
+                    <span>Neon Lime</span>
+                  </button>
+                  <button type="button" class="style-choice-btn" data-style="underline">
+                    <span class="style-preview underline">Line</span>
+                    <span>Coral Pop</span>
+                  </button>
+                </div>
+                <p class="setting-tip">High visual contrast keeps young readers focused on the active word.</p>
+              </div>
+
+              <!-- Setting Box 4: Font Size Adjustment -->
+              <div class="setting-box" id="setting-font-box">
+                <div class="setting-header">
+                  <span class="setting-title">
+                    <span>🔤</span> Reader Text Size
+                  </span>
+                  <span class="setting-value-badge" id="font-size-display-badge">32px</span>
+                </div>
+                <div class="font-size-adjust-row">
+                  <button type="button" class="btn-icon" id="btn-font-dec-settings" aria-label="Smaller Text">A-</button>
+                  <input type="range" id="settings-font-slider" class="slider-range" min="22" max="50" step="2" value="32" aria-label="Reader Font Size" />
+                  <button type="button" class="btn-icon" id="btn-font-inc-settings" aria-label="Larger Text">A+</button>
+                </div>
+                <p class="setting-tip">Extra large text prevents accidental skipping across lines on tablets.</p>
+              </div>
+
+            </div>
+
+            <div class="settings-bottom-actions">
+              <button type="button" class="btn btn-primary" id="btn-save-settings">
+                <span>✓ Save &amp; Go to Story Canvas</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ======================================================================
+           VIEW 2: KARAOKE / GUIDED READER MODE
+           ====================================================================== -->
+      <section class="view-panel" id="view-reader" aria-label="Karaoke Guided Reading Mode">
+        <div class="reader-card" id="reader-card">
+          
+          <!-- Top Progress Bar -->
+          <div class="progress-bar-container" title="Reading Progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-container">
+            <div class="progress-bar-fill" id="progress-bar-fill"></div>
+          </div>
+
+          <!-- Reader Header Toolbar -->
+          <div class="reader-top-bar" id="reader-top-bar">
+            <div class="reader-left-controls">
+              <button type="button" class="btn btn-secondary" id="btn-back-to-input" aria-label="Back to edit story">
+                <span>← Edit Story</span>
+              </button>
+              <button type="button" class="btn btn-secondary" id="btn-restart" aria-label="Restart from the beginning" title="Restart from beginning">
+                <span>↺ Restart</span>
+              </button>
+            </div>
+
+            <div class="reader-stat-badge" id="reader-progress-stat">
+              Word <strong id="current-word-idx-display">1</strong> of <strong id="total-words-display">0</strong> (<span id="progress-percent-display">0%</span>)
+            </div>
+
+            <div class="reader-right-controls">
+              <!-- In-Flight Settings Toggle for iPad / Desktop -->
+              <button type="button" class="btn-icon" id="btn-reader-settings" aria-label="Reading Controls" title="Speed & Voice Settings">
+                <span>⚙️</span>
+              </button>
+
+              <!-- Font Size Adjusters -->
+              <button type="button" class="btn-icon" id="btn-font-smaller" aria-label="Decrease font size" title="Smaller font">A-</button>
+              <button type="button" class="btn-icon" id="btn-font-larger" aria-label="Increase font size" title="Larger font">A+</button>
+              
+              <!-- Voice Read Aloud Toggle in Reader -->
+              <button type="button" class="btn-icon" id="btn-reader-sound-toggle" aria-label="Toggle speech pronunciation" title="Toggle audio voice">
+                <span id="sound-toggle-icon">🔊</span>
+              </button>
+
+              <!-- Fullscreen Toggle -->
+              <button type="button" class="btn-icon" id="btn-fullscreen-toggle" aria-label="Toggle Fullscreen mode" title="Fullscreen">
+                <span id="fullscreen-icon">⛶</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Mobile Gesture Helper Hint -->
+          <div class="mobile-gesture-tip" id="mobile-gesture-tip" aria-hidden="true">
+            <span>👆 Tap word to read • 👈 Swipe left/right to navigate</span>
+          </div>
+
+          <!-- Reading Content Display Stage -->
+          <div
+            class="reading-content-stage"
+            id="reading-stage"
+            tabindex="0"
+            role="region"
+            aria-live="polite"
+            aria-label="Story text display area"
+          >
+            <!-- Tokenized words will be injected dynamically here -->
+          </div>
+
+          <!-- Active Word Spotlight Bar (Phonics & Spelling breakdown) -->
+          <div class="word-spotlight-bar" id="word-spotlight-bar" aria-live="assertive">
+            <div class="spotlight-word-display">
+              <span class="spotlight-label">Current Word:</span>
+              <span class="spotlight-word-text" id="spotlight-word">-</span>
+              <span class="spotlight-spelling" id="spotlight-spelling"></span>
+            </div>
+
+            <button type="button" class="btn btn-secondary" id="btn-repeat-word" aria-label="Pronounce current word again">
+              <span>🔊 Repeat Word (R)</span>
+            </button>
+          </div>
+
+          <!-- Floating Bottom Reader Navigation Controls -->
+          <div class="reader-controls-bar" id="reader-controls-bar">
+            <div class="primary-nav-group">
+              <!-- Previous Word Button -->
+              <button type="button" class="btn btn-secondary btn-nav-large" id="btn-prev-word" aria-label="Previous Word (Left Arrow)">
+                <span>◀ Previous</span>
+              </button>
+
+              <!-- Central Play / Pause Auto-play Button -->
+              <button type="button" class="btn btn-play-pause" id="btn-play-pause" aria-label="Play or Pause Auto-play (Spacebar)">
+                <span id="play-pause-icon">▶</span>
+                <span id="play-pause-text">Auto-Play</span>
+              </button>
+
+              <!-- Next Word Button -->
+              <button type="button" class="btn btn-primary btn-nav-large" id="btn-next-word" aria-label="Next Word (Right Arrow)">
+                <span>Next ▶</span>
+              </button>
+            </div>
+
+            <!-- In-Reader Speed Slider -->
+            <div class="reader-speed-tool" id="reader-speed-tool">
+              <span style="font-size: 0.85rem; font-weight: 700;">Speed:</span>
+              <input type="range" id="reader-wpm-slider" min="40" max="240" step="10" value="100" aria-label="Reader WPM Speed" />
+              <span id="reader-wpm-val" style="font-size: 0.85rem; font-weight: 800; min-width: 60px;">100 WPM</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Keyboard shortcuts helper row -->
+    <footer class="shortcuts-bar" role="contentinfo" id="shortcuts-bar">
+      <span class="shortcut-tag"><span class="kbd-key">Space</span> Play / Pause</span>
+      <span class="shortcut-tag"><span class="kbd-key">→</span> Next Word</span>
+      <span class="shortcut-tag"><span class="kbd-key">←</span> Prev Word</span>
+      <span class="shortcut-tag"><span class="kbd-key">R</span> Repeat Sound</span>
+      <span class="shortcut-tag"><span class="kbd-key">Esc</span> Edit Story</span>
+    </footer>
+  </div>
+
+  <!-- ======================================================================
+       CELEBRATION / STORY FINISHED MODAL
+       ====================================================================== -->
+  <div class="modal-overlay" id="modal-celebration" role="dialog" aria-modal="true" aria-labelledby="celebration-title">
+    <div class="celebration-card">
+      <div class="celebration-icon">🎉</div>
+      <h3 class="celebration-title" id="celebration-title">Fantastic Reading!</h3>
+      <p class="celebration-message">You read every single word in the story! Give yourself a big high-five!</p>
+      
+      <div class="celebration-stats-grid">
+        <div class="c-stat-box">
+          <span class="c-stat-val" id="c-stat-words">0</span>
+          <span class="c-stat-lbl">Words Read</span>
+        </div>
+        <div class="c-stat-box">
+          <span class="c-stat-val" id="c-stat-speed">100 WPM</span>
+          <span class="c-stat-lbl">Reading Speed</span>
+        </div>
+      </div>
+
+      <div class="celebration-actions">
+        <button type="button" class="btn btn-secondary" id="btn-celebration-read-again">
+          <span>↺ Read Again</span>
+        </button>
+        <button type="button" class="btn btn-primary" id="btn-celebration-new-story">
+          <span>📖 New Story</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       KEYBOARD SHORTCUTS & HELP MODAL
+       ====================================================================== -->
+  <div class="modal-overlay" id="modal-help" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
+    <div class="celebration-card" style="text-align: left;">
+      <h3 class="celebration-title" id="help-modal-title" style="text-align: center; font-size: 1.4rem;">Reading Controls Guide</h3>
+      <p class="celebration-message" style="text-align: center;">You can navigate using mouse, touch, or quick keyboard buttons:</p>
+      
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+          <span><strong>Next Word</strong></span>
+          <span><span class="kbd-key">ArrowRight</span> or click Next</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+          <span><strong>Previous Word</strong></span>
+          <span><span class="kbd-key">ArrowLeft</span> or click Prev</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+          <span><strong>Play / Pause Auto-Read</strong></span>
+          <span><span class="kbd-key">Space</span></span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+          <span><strong>Repeat Word Sound</strong></span>
+          <span><span class="kbd-key">R</span></span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">
+          <span><strong>Jump to Any Word</strong></span>
+          <span>Click on any word directly</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px;">
+          <span><strong>Exit to Edit</strong></span>
+          <span><span class="kbd-key">Escape</span></span>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-primary" id="btn-close-help" style="width: 100%;">
+        Got it! 👍
+      </button>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       IN-FLIGHT READER SETTINGS MODAL (IPAD & DESKTOP QUICK CONTROLS)
+       ====================================================================== -->
+  <div class="modal-overlay" id="modal-reader-settings" role="dialog" aria-modal="true" aria-labelledby="modal-settings-title">
+    <div class="celebration-card" style="text-align: left; max-width: 480px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 class="celebration-title" id="modal-settings-title" style="margin: 0; font-size: 1.3rem;">⚙️ Quick Reader Controls</h3>
+        <button type="button" class="btn-icon" id="btn-close-reader-settings" aria-label="Close Settings">✕</button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <!-- Pacing Speed in Reader -->
+        <div class="setting-item">
+          <div class="setting-header">
+            <span class="setting-title"><span>⏱️</span> Reading Speed</span>
+            <span class="setting-value-badge" id="modal-wpm-badge">100 WPM</span>
+          </div>
+          <input type="range" id="modal-wpm-slider" class="slider-range" min="40" max="240" step="10" value="100" aria-label="Reading Speed WPM" />
+          <div class="speed-presets">
+            <button type="button" class="speed-preset-btn modal-speed-btn" data-wpm="60">🐢 60</button>
+            <button type="button" class="speed-preset-btn modal-speed-btn active" data-wpm="100">🐕 100</button>
+            <button type="button" class="speed-preset-btn modal-speed-btn" data-wpm="140">🐇 140</button>
+            <button type="button" class="speed-preset-btn modal-speed-btn" data-wpm="180">🐆 180</button>
+          </div>
+        </div>
+
+        <!-- Voice Pronounce in Reader -->
+        <div class="setting-item">
+          <label class="toggle-switch-wrap" for="toggle-modal-speech">
+            <span class="setting-title"><span>🔊</span> Voice Read Aloud</span>
+            <input type="checkbox" id="toggle-modal-speech" checked style="display: none;" />
+            <span class="toggle-switch" aria-hidden="true"></span>
+          </label>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-primary" id="btn-done-reader-settings" style="width: 100%; margin-top: 20px;">
+        Continue Reading ▶
+      </button>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       IOS SAFARI INSTALLATION GUIDE MODAL
+       ====================================================================== -->
+  <div class="modal-overlay" id="modal-ios-install" role="dialog" aria-modal="true" aria-labelledby="ios-modal-title">
+    <div class="celebration-card" style="text-align: center; max-width: 480px;">
+      <img src="/logo.png" alt="Read Along Logo" class="ios-modal-logo" />
+      <h3 class="celebration-title" id="ios-modal-title" style="font-size: 1.4rem;">Install on iPad or iPhone</h3>
+      <p class="celebration-message" style="margin-bottom: 16px;">Add Read Along to your Home Screen for instant offline reading:</p>
+      
+      <div class="ios-guide-box" style="text-align: left;">
+        <div class="ios-step">
+          <div class="ios-num">1</div>
+          <span>Tap the <strong>Share</strong> button (square with an arrow pointing up <strong>⎋</strong>) in the Safari toolbar.</span>
+        </div>
+        <div class="ios-step">
+          <div class="ios-num">2</div>
+          <span>Scroll down and select <strong>Add to Home Screen</strong> (<strong>⊞</strong>).</span>
+        </div>
+        <div class="ios-step">
+          <div class="ios-num">3</div>
+          <span>Tap <strong>Add</strong> in the top right corner. The app will launch fullscreen as an independent app from your home screen!</span>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-primary" id="btn-close-ios-modal" style="width: 100%; margin-top: 20px;">
+        Done 👍
+      </button>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       JAVASCRIPT APPLICATION LOGIC
+       ========================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* ========================================================================
+         SAMPLE STORIES
+         ======================================================================== */
+      const SAMPLE_STORIES = {
+        bunny: `Once upon a time, a small white bunny named Barnaby lived near a sunny hill. Barnaby loved jumping over little green moss rocks. 
+One bright morning, he saw a glowing blue flower near the edge of the tall pine trees. 
+"Hello little flower," whispered Barnaby happily. The flower gently danced in the warm wind.
+Barnaby hopped all the way home to tell his mother about his magical discovery!`,
+
+        rocket: `Three, two, one, blast off! The silver rocket zoomed into the deep dark sky. 
+Sparkly yellow stars twinkled through the round window. 
+Captain Leo looked down and waved at the big blue planet Earth. 
+"We are traveling to the moon!" shouted Leo with a huge smile. 
+The rocket landed softly on the gentle dusty ground. Leo took his very first space step.`,
+
+        pancakes: `Pip the friendly little dragon woke up feeling very hungry. Today was Sunday pancake morning! 
+He put on his red chef hat and mixed the sweet yellow batter in a bowl. 
+With a tiny puff of friendly dragon fire, the stove sizzled warmly. 
+Flip! The pancake went high into the air and landed right on his plate. 
+"Yum!" said Pip, adding golden maple syrup and fresh red berries.`,
+
+        dinosaur: `Daisy the friendly green dinosaur loved crunching on sweet leafy ferns. 
+Every sunny afternoon, she strolled down by the sparkling blue river to splash with her friend Toby the turtle. 
+"Look Daisy!" chirped Toby, pointing at a colorful rainbow arching over the tall volcano. 
+Daisy gave a joyful dino-rumble that made the pebble rocks dance. 
+It was the happiest day in the prehistoric jungle!`,
+
+        treehouse: `Deep inside the whispering willow woods sat a cozy wooden treehouse built by Maya and Sam. 
+To climb up, you had to follow a winding rope ladder wrapped in purple morning glories. 
+Inside, soft wool blankets and shelves filled with fairy tales welcomed every young explorer. 
+As twilight settled and fireflies began to glow, Maya opened her notebook to sketch the evening stars.`
+      };
+
+      /* ========================================================================
+         STATE MANAGEMENT
+         ======================================================================== */
+      const state = {
+        rawText: '',
+        paragraphs: [],      // Array of arrays containing word tokens
+        flatWords: [],       // Array of { id, text, cleanWord, paragraphIndex, wordIndex }
+        currentIndex: 0,
+        isPlaying: false,
+        playIntervalId: null,
+        wpm: 100,
+        isSpeechEnabled: true,
+        voices: [],
+        selectedVoice: null,
+        fontSize: 32,
+        highlightStyle: 'classic',
+        activeTheme: 'warm',
+        activeFont: 'lexend',
+        activeCompartment: 'canvas',
+        deferredInstallPrompt: null,
+        isStandalone: false,
+        isIOS: false
+      };
+
+      /* ========================================================================
+         DOM ELEMENTS
+         ======================================================================== */
+      const elements = {
+        // Compartmentalized Tabs and Panels
+        compartmentTabs: document.querySelectorAll('.c-tab-btn'),
+        tabCanvas: document.getElementById('tab-btn-canvas'),
+        tabLibrary: document.getElementById('tab-btn-library'),
+        tabSettings: document.getElementById('tab-btn-settings'),
+        panelCanvas: document.getElementById('panel-canvas'),
+        panelLibrary: document.getElementById('panel-library'),
+        panelSettings: document.getElementById('panel-settings'),
+
+        // Quick helper navigation triggers
+        btnGotoLibrary: document.getElementById('btn-goto-library'),
+        btnGotoSettings: document.getElementById('btn-goto-settings'),
+        btnBackToCanvas: document.getElementById('btn-back-to-canvas'),
+        btnBackToCanvas2: document.getElementById('btn-back-to-canvas-2'),
+
+        // Story Canvas Elements
+        storyInput: document.getElementById('story-input'),
+        fileDropzone: document.getElementById('file-dropzone'),
+        fileUploadInput: document.getElementById('file-upload-input'),
+        btnSample1: document.getElementById('btn-sample-1'),
+        btnSample2: document.getElementById('btn-sample-2'),
+        btnSample3: document.getElementById('btn-sample-3'),
+        btnSample4: document.getElementById('btn-sample-4'),
+        btnSample5: document.getElementById('btn-sample-5'),
+        btnLoadSamples: document.querySelectorAll('.btn-load-sample'),
+        btnReadSamples: document.querySelectorAll('.btn-read-sample'),
+
+        inputWpmSlider: document.getElementById('input-wpm-slider'),
+        wpmDisplayBadge: document.getElementById('wpm-display-badge'),
+        speedPresetBtns: document.querySelectorAll('.speed-preset-btn'),
+        toggleSpeechInput: document.getElementById('toggle-speech-input'),
+        voiceSelect: document.getElementById('voice-select'),
+        btnTestVoice: document.getElementById('btn-test-voice'),
+        statWordCount: document.getElementById('stat-word-count'),
+        statReadTime: document.getElementById('stat-read-time'),
+        btnStartReading: document.getElementById('btn-start-reading'),
+
+        storageStatusPill: document.getElementById('storage-status-pill'),
+        storageStatusText: document.getElementById('storage-status-text'),
+        btnClearText: document.getElementById('btn-clear-text'),
+
+        // Settings Dashboard Elements
+        styleChoiceBtns: document.querySelectorAll('.style-choice-btn'),
+        btnSettingsFontSmaller: document.getElementById('btn-settings-font-smaller'),
+        btnSettingsFontLarger: document.getElementById('btn-settings-font-larger'),
+        settingsFontSizeVal: document.getElementById('settings-font-size-val'),
+        btnStartReadingFromSettings: document.getElementById('btn-start-reading-from-settings'),
+
+        viewInput: document.getElementById('view-input'),
+        viewReader: document.getElementById('view-reader'),
+
+        readingStage: document.getElementById('reading-stage'),
+        progressBarFill: document.getElementById('progress-bar-fill'),
+        currentWordIdxDisplay: document.getElementById('current-word-idx-display'),
+        totalWordsDisplay: document.getElementById('total-words-display'),
+        progressPercentDisplay: document.getElementById('progress-percent-display'),
+
+        spotlightWord: document.getElementById('spotlight-word'),
+        spotlightSpelling: document.getElementById('spotlight-spelling'),
+
+        btnBackToInput: document.getElementById('btn-back-to-input'),
+        btnRestart: document.getElementById('btn-restart'),
+        btnFontSmaller: document.getElementById('btn-font-smaller'),
+        btnFontLarger: document.getElementById('btn-font-larger'),
+        btnReaderSoundToggle: document.getElementById('btn-reader-sound-toggle'),
+        soundToggleIcon: document.getElementById('sound-toggle-icon'),
+        btnFullscreenToggle: document.getElementById('btn-fullscreen-toggle'),
+        fullscreenIcon: document.getElementById('fullscreen-icon'),
+
+        // In-flight Quick Reader Controls Modal
+        btnReaderSettings: document.getElementById('btn-reader-settings'),
+        modalReaderSettings: document.getElementById('modal-reader-settings'),
+        btnCloseReaderSettings: document.getElementById('btn-close-reader-settings'),
+        btnDoneReaderSettings: document.getElementById('btn-done-reader-settings'),
+        modalWpmSlider: document.getElementById('modal-wpm-slider'),
+        modalWpmBadge: document.getElementById('modal-wpm-badge'),
+        modalSpeedBtns: document.querySelectorAll('.modal-speed-btn'),
+        toggleModalSpeech: document.getElementById('toggle-modal-speech'),
+
+        btnPrevWord: document.getElementById('btn-prev-word'),
+        btnNextWord: document.getElementById('btn-next-word'),
+        btnPlayPause: document.getElementById('btn-play-pause'),
+        playPauseIcon: document.getElementById('play-pause-icon'),
+        playPauseText: document.getElementById('play-pause-text'),
+        btnRepeatWord: document.getElementById('btn-repeat-word'),
+
+        readerWpmSlider: document.getElementById('reader-wpm-slider'),
+        readerWpmVal: document.getElementById('reader-wpm-val'),
+
+        fontFamilySelect: document.getElementById('font-family-select'),
+        themeSelect: document.getElementById('theme-select'),
+        statusDot: document.getElementById('status-dot'),
+        statusText: document.getElementById('status-text'),
+        btnPwaInstall: document.getElementById('btn-pwa-install'),
+
+        modalCelebration: document.getElementById('modal-celebration'),
+        cStatWords: document.getElementById('c-stat-words'),
+        cStatSpeed: document.getElementById('c-stat-speed'),
+        btnCelebrationReadAgain: document.getElementById('btn-celebration-read-again'),
+        btnCelebrationNewStory: document.getElementById('btn-celebration-new-story'),
+
+        btnHelpShortcuts: document.getElementById('btn-help-shortcuts'),
+        modalHelp: document.getElementById('modal-help'),
+        btnCloseHelp: document.getElementById('btn-close-help'),
+
+        modalIosInstall: document.getElementById('modal-ios-install'),
+        btnCloseIosModal: document.getElementById('btn-close-ios-modal'),
+
+        confettiCanvas: document.getElementById('confetti-canvas')
+      };
+
+      /* ========================================================================
+         INITIALIZATION & EVENT BINDINGS
+         ======================================================================== */
+      function triggerHaptic(duration = 15) {
+        if ('vibrate' in navigator) {
+          try {
+            navigator.vibrate(duration);
+          } catch (e) {
+            // Passive failure for unsupported devices
+          }
+        }
+      }
+
+      /* ========================================================================
+         LOCAL STORAGE PERSISTENCE ENGINE
+         ======================================================================== */
+      const STORAGE_KEY_STORY = 'karaoke_reader_custom_story';
+      let saveTimer = null;
+
+      function saveStoryToStorage(text, isTyping = true) {
+        try {
+          localStorage.setItem(STORAGE_KEY_STORY, text);
+          if (elements.storageStatusPill && elements.storageStatusText) {
+            elements.storageStatusPill.classList.add('saved');
+            elements.storageStatusText.textContent = isTyping ? 'Draft saved locally' : 'Story saved';
+            clearTimeout(saveTimer);
+            saveTimer = setTimeout(() => {
+              if (elements.storageStatusPill) {
+                elements.storageStatusPill.classList.remove('saved');
+              }
+            }, 1800);
+          }
+        } catch (err) {
+          console.warn('Unable to persist story to localStorage:', err);
+        }
+      }
+
+      function loadStoryFromStorage() {
+        try {
+          return localStorage.getItem(STORAGE_KEY_STORY);
+        } catch (err) {
+          console.warn('Unable to read story from localStorage:', err);
+          return null;
+        }
+      }
+
+      /* ========================================================================
+         COMPARTMENTALIZED TAB SWITCHING
+         ======================================================================== */
+      function switchCompartment(tabName) {
+        state.activeCompartment = tabName;
+        triggerHaptic(10);
+
+        // Update tab buttons
+        if (elements.compartmentTabs) {
+          elements.compartmentTabs.forEach((tab) => {
+            const target = tab.getAttribute('data-tab');
+            if (target === tabName) {
+              tab.classList.add('active');
+              tab.setAttribute('aria-selected', 'true');
+            } else {
+              tab.classList.remove('active');
+              tab.setAttribute('aria-selected', 'false');
+            }
+          });
+        }
+
+        // Toggle panel displays
+        if (elements.panelCanvas) elements.panelCanvas.style.display = (tabName === 'canvas') ? 'flex' : 'none';
+        if (elements.panelLibrary) elements.panelLibrary.style.display = (tabName === 'library') ? 'flex' : 'none';
+        if (elements.panelSettings) elements.panelSettings.style.display = (tabName === 'settings') ? 'flex' : 'none';
+
+        // Scroll to top of app container smoothly
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function setHighlightStyle(styleName, save = true) {
+        state.highlightStyle = styleName;
+        document.body.setAttribute('data-highlight', styleName);
+
+        if (elements.styleChoiceBtns) {
+          elements.styleChoiceBtns.forEach((btn) => {
+            if (btn.getAttribute('data-style') === styleName) {
+              btn.classList.add('active');
+            } else {
+              btn.classList.remove('active');
+            }
+          });
+        }
+
+        if (save) {
+          try {
+            localStorage.setItem('karaoke_reader_highlight_style', styleName);
+          } catch (e) {}
+        }
+      }
+
+      function setFontSize(newSize) {
+        state.fontSize = Math.max(18, Math.min(56, newSize));
+        document.documentElement.style.setProperty('--reader-font-size', `${state.fontSize}px`);
+        if (elements.settingsFontSizeVal) {
+          elements.settingsFontSizeVal.textContent = `${state.fontSize}px`;
+        }
+      }
+
+      function setSpeechEnabled(enabled) {
+        state.isSpeechEnabled = enabled;
+        if (elements.toggleSpeechInput) elements.toggleSpeechInput.checked = enabled;
+        if (elements.toggleModalSpeech) elements.toggleModalSpeech.checked = enabled;
+        updateSoundToggleIcons();
+      }
+
+      function init() {
+        checkStandaloneMode();
+        initPWA();
+        initSpeechSynthesis();
+
+        // Responsive font size baseline on small screens
+        if (window.innerWidth <= 640) {
+          state.fontSize = 26;
+          document.documentElement.style.setProperty('--reader-font-size', '26px');
+        }
+
+        bindInputEvents();
+        bindReaderEvents();
+        bindNavigationEvents();
+        bindSettingsEvents();
+
+        // Restore highlight style if previously saved
+        try {
+          const savedHighlight = localStorage.getItem('karaoke_reader_highlight_style');
+          if (savedHighlight) {
+            setHighlightStyle(savedHighlight, false);
+          }
+        } catch (e) {}
+
+        // Ensure canvas compartment is active initially
+        switchCompartment('canvas');
+
+        // Load persisted story if present, otherwise default to sample story
+        const savedStory = loadStoryFromStorage();
+        if (savedStory !== null && savedStory.trim().length > 0) {
+          setStoryText(savedStory, false);
+          if (elements.storageStatusText) {
+            elements.storageStatusText.textContent = 'Draft restored from device';
+          }
+        } else if (savedStory !== null && savedStory === '') {
+          setStoryText('', false);
+          if (elements.storageStatusText) {
+            elements.storageStatusText.textContent = 'Ready to write';
+          }
+        } else {
+          setStoryText(SAMPLE_STORIES.bunny, false);
+        }
+      }
+
+      /* ========================================================================
+         TEXT TOKENIZATION ENGINE
+         ======================================================================== */
+      function setStoryText(text, saveToStorage = true) {
+        state.rawText = text;
+        elements.storyInput.value = state.rawText;
+        updateInputStats();
+        if (saveToStorage) {
+          saveStoryToStorage(text, false);
+        }
+      }
+
+      function updateInputStats() {
+        const text = elements.storyInput.value.trim();
+        state.rawText = text;
+
+        if (!text) {
+          elements.statWordCount.textContent = '0';
+          elements.statReadTime.textContent = '0s';
+          return;
+        }
+
+        // Quick word count calculation
+        const words = text.match(/\S+/g) || [];
+        const count = words.length;
+        elements.statWordCount.textContent = count;
+
+        const seconds = Math.ceil((count / state.wpm) * 60);
+        elements.statReadTime.textContent = seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+      }
+
+      function parseStoryIntoTokens(text) {
+        state.flatWords = [];
+        state.paragraphs = [];
+
+        // Split text by lines / paragraphs
+        const rawParas = text.split(/\n+/);
+        let globalIndex = 0;
+
+        rawParas.forEach((paraText, pIdx) => {
+          const trimmed = paraText.trim();
+          if (!trimmed) return;
+
+          // Tokenize paragraph keeping punctuation attached
+          const tokens = trimmed.split(/\s+/);
+          const paraWordTokens = [];
+
+          tokens.forEach((token) => {
+            // Clean punctuation for pronunciation (e.g., "Hello," -> "Hello")
+            const cleanWord = token.replace(/^[^\w\s']+|[^\w\s']+$/g, '').trim();
+
+            const wordObj = {
+              id: `word-${globalIndex}`,
+              index: globalIndex,
+              text: token,
+              cleanWord: cleanWord || token,
+              pIdx: pIdx
+            };
+
+            state.flatWords.push(wordObj);
+            paraWordTokens.push(wordObj);
+            globalIndex++;
+          });
+
+          state.paragraphs.push(paraWordTokens);
+        });
+      }
+
+      /* ========================================================================
+         VIEW SWITCHING
+         ======================================================================== */
+      function showView(viewName) {
+        if (viewName === 'reader') {
+          elements.viewInput.classList.remove('active');
+          elements.viewReader.classList.add('active');
+          // Focus stage for keyboard navigation
+          elements.readingStage.focus();
+        } else {
+          pauseAutoPlay();
+          elements.viewReader.classList.remove('active');
+          elements.viewInput.classList.add('active');
+        }
+      }
+
+      /* ========================================================================
+         READER RENDERING & WORD HIGHLIGHTING
+         ======================================================================== */
+      function launchReader() {
+        const text = elements.storyInput.value.trim();
+        if (!text) {
+          alert('Please enter or select a story first!');
+          return;
+        }
+
+        parseStoryIntoTokens(text);
+        if (state.flatWords.length === 0) return;
+
+        state.currentIndex = 0;
+        elements.totalWordsDisplay.textContent = state.flatWords.length;
+
+        // Render words into reading stage
+        renderReaderDOM();
+
+        // Switch view
+        showView('reader');
+
+        // Highlight first word
+        updateWordHighlight();
+
+        // Pronounce initial word if enabled
+        if (state.isSpeechEnabled) {
+          speakCurrentWord();
+        }
+      }
+
+      function renderReaderDOM() {
+        elements.readingStage.innerHTML = '';
+
+        state.paragraphs.forEach((para) => {
+          const paraEl = document.createElement('p');
+          paraEl.className = 'story-paragraph';
+
+          para.forEach((wordObj) => {
+            const wordBtn = document.createElement('button');
+            wordBtn.type = 'button';
+            wordBtn.id = wordObj.id;
+            wordBtn.className = 'reader-word';
+            wordBtn.textContent = wordObj.text + ' ';
+            wordBtn.setAttribute('data-index', wordObj.index);
+            wordBtn.setAttribute('aria-label', wordObj.cleanWord);
+
+            // Clicking any word jumps directly to it
+            wordBtn.addEventListener('click', () => {
+              jumpToWord(wordObj.index);
+            });
+
+            paraEl.appendChild(wordBtn);
+          });
+
+          elements.readingStage.appendChild(paraEl);
+        });
+      }
+
+      function updateWordHighlight() {
+        const total = state.flatWords.length;
+        if (total === 0) return;
+
+        // Clamp index
+        state.currentIndex = Math.max(0, Math.min(state.currentIndex, total - 1));
+
+        // Update words classes
+        state.flatWords.forEach((w) => {
+          const el = document.getElementById(w.id);
+          if (!el) return;
+
+          if (w.index === state.currentIndex) {
+            el.className = 'reader-word active-word';
+            el.setAttribute('aria-current', 'step');
+
+            // Auto-scroll word into view smoothly
+            el.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
+              inline: 'nearest'
+            });
+          } else if (w.index < state.currentIndex) {
+            el.className = 'reader-word read-word';
+            el.removeAttribute('aria-current');
+          } else {
+            el.className = 'reader-word';
+            el.removeAttribute('aria-current');
+          }
+        });
+
+        // Update stats and progress bar
+        const currentNum = state.currentIndex + 1;
+        const progressPercent = Math.round((currentNum / total) * 100);
+
+        elements.currentWordIdxDisplay.textContent = currentNum;
+        elements.progressPercentDisplay.textContent = `${progressPercent}%`;
+        elements.progressBarFill.style.width = `${progressPercent}%`;
+        elements.progressBarFill.setAttribute('aria-valuenow', progressPercent);
+
+        // Update spotlight card
+        const activeWordObj = state.flatWords[state.currentIndex];
+        if (activeWordObj) {
+          elements.spotlightWord.textContent = activeWordObj.cleanWord;
+          // Letter spelling format (e.g. "B - U - N - N - Y")
+          const letters = activeWordObj.cleanWord.toUpperCase().split('').join(' • ');
+          elements.spotlightSpelling.textContent = `(${letters})`;
+        }
+      }
+
+      function jumpToWord(index) {
+        state.currentIndex = index;
+        triggerHaptic(12);
+        updateWordHighlight();
+        if (state.isSpeechEnabled) {
+          speakCurrentWord();
+        }
+      }
+
+      function nextWord() {
+        if (state.currentIndex < state.flatWords.length - 1) {
+          state.currentIndex++;
+          triggerHaptic(12);
+          updateWordHighlight();
+          if (state.isSpeechEnabled) {
+            speakCurrentWord();
+          }
+        } else {
+          // Reached end of story!
+          handleStoryCompletion();
+        }
+      }
+
+      function prevWord() {
+        if (state.currentIndex > 0) {
+          state.currentIndex--;
+          triggerHaptic(12);
+          updateWordHighlight();
+          if (state.isSpeechEnabled) {
+            speakCurrentWord();
+          }
+        }
+      }
+
+      /* ========================================================================
+         AUTO-PLAY / KARAOKE TICKER ENGINE
+         ======================================================================== */
+      function toggleAutoPlay() {
+        if (state.isPlaying) {
+          pauseAutoPlay();
+        } else {
+          startAutoPlay();
+        }
+      }
+
+      function startAutoPlay() {
+        if (state.flatWords.length === 0) return;
+
+        // If at the end, restart from beginning
+        if (state.currentIndex >= state.flatWords.length - 1) {
+          state.currentIndex = 0;
+          updateWordHighlight();
+        }
+
+        state.isPlaying = true;
+        elements.btnPlayPause.classList.add('is-playing');
+        elements.playPauseIcon.textContent = '⏸';
+        elements.playPauseText.textContent = 'Pause';
+
+        // Calculate step duration based on WPM: (60 / WPM) * 1000 ms
+        scheduleNextWord();
+      }
+
+      function scheduleNextWord() {
+        if (!state.isPlaying) return;
+
+        const intervalMs = Math.max(250, (60 / state.wpm) * 1000);
+
+        if (state.playIntervalId) {
+          clearTimeout(state.playIntervalId);
+        }
+
+        state.playIntervalId = setTimeout(() => {
+          if (!state.isPlaying) return;
+
+          if (state.currentIndex < state.flatWords.length - 1) {
+            nextWord();
+            scheduleNextWord();
+          } else {
+            pauseAutoPlay();
+            handleStoryCompletion();
+          }
+        }, intervalMs);
+      }
+
+      function pauseAutoPlay() {
+        state.isPlaying = false;
+        if (state.playIntervalId) {
+          clearTimeout(state.playIntervalId);
+          state.playIntervalId = null;
+        }
+        elements.btnPlayPause.classList.remove('is-playing');
+        elements.playPauseIcon.textContent = '▶';
+        elements.playPauseText.textContent = 'Auto-Play';
+      }
+
+      /* ========================================================================
+         TEXT-TO-SPEECH (SPEECH SYNTHESIS)
+         ======================================================================== */
+      function initSpeechSynthesis() {
+        if (!('speechSynthesis' in window)) {
+          elements.settingTts.style.opacity = '0.6';
+          elements.voiceSelect.innerHTML = '<option>Speech not supported in this browser</option>';
+          return;
+        }
+
+        function populateVoices() {
+          state.voices = window.speechSynthesis.getVoices();
+          elements.voiceSelect.innerHTML = '';
+
+          // Prefer natural English voices or default
+          let selectedIdx = 0;
+          state.voices.forEach((voice, index) => {
+            const opt = document.createElement('option');
+            opt.value = index;
+            opt.textContent = `${voice.name} (${voice.lang})${voice.default ? ' [Default]' : ''}`;
+            
+            // Auto pick child/friendly or clear English voice if found
+            if (!state.selectedVoice && (voice.lang.includes('en') || voice.default)) {
+              selectedIdx = index;
+            }
+            elements.voiceSelect.appendChild(opt);
+          });
+
+          if (state.voices.length > 0) {
+            elements.voiceSelect.selectedIndex = selectedIdx;
+            state.selectedVoice = state.voices[selectedIdx];
+          }
+        }
+
+        populateVoices();
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+          speechSynthesis.onvoiceschanged = populateVoices;
+        }
+      }
+
+      function speakCurrentWord() {
+        if (!('speechSynthesis' in window) || !state.isSpeechEnabled) return;
+
+        const currentWordObj = state.flatWords[state.currentIndex];
+        if (!currentWordObj || !currentWordObj.cleanWord) return;
+
+        try {
+          // Cancel previous spoken utterance to keep pace
+          window.speechSynthesis.cancel();
+
+          const utterance = new SpeechSynthesisUtterance(currentWordObj.cleanWord);
+          
+          if (state.selectedVoice) {
+            utterance.voice = state.selectedVoice;
+          }
+
+          // Adjust rate dynamically based on WPM: base is 1.0 at ~120 WPM
+          const calculatedRate = Math.min(2.0, Math.max(0.6, state.wpm / 120));
+          utterance.rate = calculatedRate;
+          utterance.pitch = 1.05; // Slightly cheerful, friendly pitch for kids
+
+          window.speechSynthesis.speak(utterance);
+        } catch (e) {
+          console.warn('Speech synthesis playback error:', e);
+        }
+      }
+
+      /* ========================================================================
+         CELEBRATION & CONFETTI
+         ======================================================================== */
+      function handleStoryCompletion() {
+        pauseAutoPlay();
+        triggerHaptic([30, 50, 80]);
+
+        // Fill stats
+        elements.cStatWords.textContent = state.flatWords.length;
+        elements.cStatSpeed.textContent = `${state.wpm} WPM`;
+
+        // Show modal
+        elements.modalCelebration.classList.add('active');
+
+        // Trigger confetti
+        runConfetti();
+      }
+
+      function runConfetti() {
+        const canvas = elements.confettiCanvas;
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const pieces = [];
+        const colors = ['#f59e0b', '#10b981', '#4f46e5', '#ec4899', '#3b82f6', '#facc15'];
+
+        for (let i = 0; i < 90; i++) {
+          pieces.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height - canvas.height,
+            size: Math.random() * 10 + 6,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            speed: Math.random() * 4 + 3,
+            angle: Math.random() * 360,
+            rotation: Math.random() * 0.2 - 0.1
+          });
+        }
+
+        let animationFrame;
+        let elapsed = 0;
+
+        function render() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          pieces.forEach((p) => {
+            p.y += p.speed;
+            p.angle += p.rotation;
+            if (p.y > canvas.height) {
+              p.y = -20;
+              p.x = Math.random() * canvas.width;
+            }
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.angle);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+            ctx.restore();
+          });
+
+          elapsed++;
+          if (elapsed < 240) {
+            animationFrame = requestAnimationFrame(render);
+          } else {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            cancelAnimationFrame(animationFrame);
+          }
+        }
+
+        render();
+      }
+
+      /* ========================================================================
+         BIND INPUT EVENTS
+         ======================================================================== */
+      function bindInputEvents() {
+        // Compartmentalized Tab Switching
+        if (elements.compartmentTabs) {
+          elements.compartmentTabs.forEach((tab) => {
+            tab.addEventListener('click', () => {
+              const target = tab.getAttribute('data-tab');
+              if (target) switchCompartment(target);
+            });
+          });
+        }
+
+        // Quick Helper Navigation Links
+        if (elements.btnGotoLibrary) {
+          elements.btnGotoLibrary.addEventListener('click', () => switchCompartment('library'));
+        }
+        if (elements.btnGotoSettings) {
+          elements.btnGotoSettings.addEventListener('click', () => switchCompartment('settings'));
+        }
+        if (elements.btnBackToCanvas) {
+          elements.btnBackToCanvas.addEventListener('click', () => switchCompartment('canvas'));
+        }
+        if (elements.btnBackToCanvas2) {
+          elements.btnBackToCanvas2.addEventListener('click', () => switchCompartment('canvas'));
+        }
+
+        // Story Library Cards: Load to Canvas
+        if (elements.btnLoadSamples) {
+          elements.btnLoadSamples.forEach((btn) => {
+            btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const storyKey = btn.getAttribute('data-story');
+              if (SAMPLE_STORIES[storyKey]) {
+                setStoryText(SAMPLE_STORIES[storyKey], true);
+                switchCompartment('canvas');
+                triggerHaptic(15);
+                if (elements.storageStatusText) {
+                  elements.storageStatusText.textContent = 'Sample story loaded';
+                }
+              }
+            });
+          });
+        }
+
+        // Story Library Cards: Read Now Directly
+        if (elements.btnReadSamples) {
+          elements.btnReadSamples.forEach((btn) => {
+            btn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              const storyKey = btn.getAttribute('data-story');
+              if (SAMPLE_STORIES[storyKey]) {
+                setStoryText(SAMPLE_STORIES[storyKey], true);
+                triggerHaptic(20);
+                launchReader();
+              }
+            });
+          });
+        }
+
+        elements.storyInput.addEventListener('input', () => {
+          updateInputStats();
+          saveStoryToStorage(elements.storyInput.value, true);
+        });
+
+        // Clear Story Button
+        if (elements.btnClearText) {
+          elements.btnClearText.addEventListener('click', () => {
+            if (elements.storyInput.value.length > 0) {
+              setStoryText('', true);
+              if (elements.storageStatusText) {
+                elements.storageStatusText.textContent = 'Story cleared';
+              }
+              elements.storyInput.focus();
+            }
+          });
+        }
+
+        // Preset story buttons (header shortcuts)
+        if (elements.btnSample1) elements.btnSample1.addEventListener('click', () => setStoryText(SAMPLE_STORIES.bunny, true));
+        if (elements.btnSample2) elements.btnSample2.addEventListener('click', () => setStoryText(SAMPLE_STORIES.rocket, true));
+        if (elements.btnSample3) elements.btnSample3.addEventListener('click', () => setStoryText(SAMPLE_STORIES.pancakes, true));
+        if (elements.btnSample4) elements.btnSample4.addEventListener('click', () => setStoryText(SAMPLE_STORIES.dinosaur, true));
+        if (elements.btnSample5) elements.btnSample5.addEventListener('click', () => setStoryText(SAMPLE_STORIES.treehouse, true));
+
+        // File upload click & drag-and-drop
+        elements.fileDropzone.addEventListener('click', () => elements.fileUploadInput.click());
+        elements.fileDropzone.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            elements.fileUploadInput.click();
+          }
+        });
+
+        elements.fileUploadInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (file) handleFileContent(file);
+        });
+
+        elements.fileDropzone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          elements.fileDropzone.classList.add('drag-over');
+        });
+
+        elements.fileDropzone.addEventListener('dragleave', () => {
+          elements.fileDropzone.classList.remove('drag-over');
+        });
+
+        elements.fileDropzone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          elements.fileDropzone.classList.remove('drag-over');
+          if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            handleFileContent(e.dataTransfer.files[0]);
+          }
+        });
+
+        // WPM Slider on input screen
+        if (elements.inputWpmSlider) {
+          elements.inputWpmSlider.addEventListener('input', (e) => {
+            setWPM(parseInt(e.target.value, 10));
+          });
+        }
+
+        // Speed Preset buttons
+        if (elements.speedPresetBtns) {
+          elements.speedPresetBtns.forEach((btn) => {
+            btn.addEventListener('click', () => {
+              const w = parseInt(btn.getAttribute('data-wpm'), 10);
+              setWPM(w);
+            });
+          });
+        }
+
+        // Toggle Speech in setup
+        if (elements.toggleSpeechInput) {
+          elements.toggleSpeechInput.addEventListener('change', (e) => {
+            setSpeechEnabled(e.target.checked);
+          });
+        }
+
+        // Voice selection change
+        if (elements.voiceSelect) {
+          elements.voiceSelect.addEventListener('change', (e) => {
+            const idx = parseInt(e.target.value, 10);
+            state.selectedVoice = state.voices[idx];
+          });
+        }
+
+        // Test Voice button
+        if (elements.btnTestVoice) {
+          elements.btnTestVoice.addEventListener('click', () => {
+            if ('speechSynthesis' in window) {
+              window.speechSynthesis.cancel();
+              const u = new SpeechSynthesisUtterance('Hello! Let us read together!');
+              if (state.selectedVoice) u.voice = state.selectedVoice;
+              u.rate = Math.min(2.0, Math.max(0.6, state.wpm / 120));
+              window.speechSynthesis.speak(u);
+            }
+          });
+        }
+
+        // Start Reading CTA
+        if (elements.btnStartReading) {
+          elements.btnStartReading.addEventListener('click', launchReader);
+        }
+      }
+
+      function handleFileContent(file) {
+        if (!file.name.endsWith('.txt') && file.type !== 'text/plain') {
+          alert('Please upload a plain .txt text file.');
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setStoryText(event.target.result);
+        };
+        reader.readAsText(file);
+      }
+
+      function setWPM(newWpm) {
+        state.wpm = newWpm;
+        if (elements.inputWpmSlider) elements.inputWpmSlider.value = newWpm;
+        if (elements.readerWpmSlider) elements.readerWpmSlider.value = newWpm;
+        if (elements.modalWpmSlider) elements.modalWpmSlider.value = newWpm;
+
+        if (elements.wpmDisplayBadge) elements.wpmDisplayBadge.textContent = `${newWpm} WPM`;
+        if (elements.readerWpmVal) elements.readerWpmVal.textContent = `${newWpm} WPM`;
+        if (elements.modalWpmBadge) elements.modalWpmBadge.textContent = `${newWpm} WPM`;
+
+        // Update active preset button highlight on all preset button groups
+        [elements.speedPresetBtns, elements.modalSpeedBtns].forEach((btnGroup) => {
+          if (!btnGroup) return;
+          btnGroup.forEach((btn) => {
+            const btnW = parseInt(btn.getAttribute('data-wpm'), 10);
+            if (btnW === newWpm) {
+              btn.classList.add('active');
+            } else {
+              btn.classList.remove('active');
+            }
+          });
+        });
+
+        updateInputStats();
+
+        // If currently auto-playing, re-schedule with new timing
+        if (state.isPlaying) {
+          scheduleNextWord();
+        }
+      }
+
+      /* ========================================================================
+         BIND READER VIEW CONTROLS
+         ======================================================================== */
+      function bindReaderEvents() {
+        elements.btnBackToInput.addEventListener('click', () => showView('input'));
+
+        elements.btnRestart.addEventListener('click', () => {
+          state.currentIndex = 0;
+          updateWordHighlight();
+          if (state.isSpeechEnabled) speakCurrentWord();
+        });
+
+        // In-flight Quick Reader Controls Modal
+        if (elements.btnReaderSettings) {
+          elements.btnReaderSettings.addEventListener('click', () => {
+            if (elements.modalReaderSettings) {
+              elements.modalReaderSettings.classList.add('active');
+            }
+          });
+        }
+
+        if (elements.btnCloseReaderSettings) {
+          elements.btnCloseReaderSettings.addEventListener('click', () => {
+            if (elements.modalReaderSettings) {
+              elements.modalReaderSettings.classList.remove('active');
+            }
+          });
+        }
+
+        if (elements.btnDoneReaderSettings) {
+          elements.btnDoneReaderSettings.addEventListener('click', () => {
+            if (elements.modalReaderSettings) {
+              elements.modalReaderSettings.classList.remove('active');
+            }
+          });
+        }
+
+        if (elements.modalWpmSlider) {
+          elements.modalWpmSlider.addEventListener('input', (e) => {
+            setWPM(parseInt(e.target.value, 10));
+          });
+        }
+
+        if (elements.modalSpeedBtns) {
+          elements.modalSpeedBtns.forEach((btn) => {
+            btn.addEventListener('click', () => {
+              const w = parseInt(btn.getAttribute('data-wpm'), 10);
+              setWPM(w);
+            });
+          });
+        }
+
+        if (elements.toggleModalSpeech) {
+          elements.toggleModalSpeech.addEventListener('change', (e) => {
+            setSpeechEnabled(e.target.checked);
+          });
+        }
+
+        // In-reader speed slider (if present)
+        if (elements.readerWpmSlider) {
+          elements.readerWpmSlider.addEventListener('input', (e) => {
+            setWPM(parseInt(e.target.value, 10));
+          });
+        }
+
+        // Navigation buttons
+        elements.btnNextWord.addEventListener('click', nextWord);
+        elements.btnPrevWord.addEventListener('click', prevWord);
+        elements.btnPlayPause.addEventListener('click', toggleAutoPlay);
+        elements.btnRepeatWord.addEventListener('click', speakCurrentWord);
+
+        // Sound Toggle in reader toolbar
+        elements.btnReaderSoundToggle.addEventListener('click', () => {
+          setSpeechEnabled(!state.isSpeechEnabled);
+        });
+
+        // Font Size adjusters
+        elements.btnFontSmaller.addEventListener('click', () => {
+          setFontSize(state.fontSize - 4);
+        });
+
+        elements.btnFontLarger.addEventListener('click', () => {
+          setFontSize(state.fontSize + 4);
+        });
+
+        // Fullscreen toggle
+        elements.btnFullscreenToggle.addEventListener('click', toggleFullscreen);
+
+        // Celebration actions
+        elements.btnCelebrationReadAgain.addEventListener('click', () => {
+          elements.modalCelebration.classList.remove('active');
+          state.currentIndex = 0;
+          updateWordHighlight();
+          if (state.isSpeechEnabled) speakCurrentWord();
+        });
+
+        elements.btnCelebrationNewStory.addEventListener('click', () => {
+          elements.modalCelebration.classList.remove('active');
+          showView('input');
+        });
+
+        // Touch Swipe Navigation for Mobile & iPad Devices
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartTime = 0;
+
+        elements.readingStage.addEventListener('touchstart', (e) => {
+          if (e.touches && e.touches.length === 1) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            touchStartTime = Date.now();
+          }
+        }, { passive: true });
+
+        elements.readingStage.addEventListener('touchend', (e) => {
+          if (e.changedTouches && e.changedTouches.length === 1) {
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            const diffX = touchEndX - touchStartX;
+            const diffY = touchEndY - touchStartY;
+            const duration = Date.now() - touchStartTime;
+
+            // Trigger swipe navigation if movement is horizontal and swift (< 600ms)
+            if (duration < 600 && Math.abs(diffX) > 40 && Math.abs(diffX) > Math.abs(diffY) * 1.3) {
+              if (diffX < 0) {
+                // Swipe Left -> Move forward to next word
+                nextWord();
+              } else {
+                // Swipe Right -> Move backward to previous word
+                prevWord();
+              }
+            }
+          }
+        }, { passive: true });
+      }
+
+      function updateSoundToggleIcons() {
+        if (state.isSpeechEnabled) {
+          elements.soundToggleIcon.textContent = '🔊';
+          elements.btnReaderSoundToggle.style.color = 'var(--text-main)';
+        } else {
+          elements.soundToggleIcon.textContent = '🔇';
+          elements.btnReaderSoundToggle.style.color = 'var(--text-muted)';
+        }
+      }
+
+      function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+          elements.fullscreenIcon.textContent = '✖';
+        } else {
+          document.exitFullscreen().catch(() => {});
+          elements.fullscreenIcon.textContent = '⛶';
+        }
+      }
+
+      /* ========================================================================
+         KEYBOARD SHORTCUTS ENGINE
+         ======================================================================== */
+      function bindNavigationEvents() {
+        window.addEventListener('keydown', (e) => {
+          // If user is currently typing in the story textarea, don't intercept keys
+          if (document.activeElement === elements.storyInput) {
+            if (e.key === 'Escape') elements.storyInput.blur();
+            return;
+          }
+
+          // If a modal is open, let Escape close it
+          if (elements.modalCelebration && elements.modalCelebration.classList.contains('active')) {
+            if (e.key === 'Escape') elements.modalCelebration.classList.remove('active');
+            return;
+          }
+          if (elements.modalHelp && elements.modalHelp.classList.contains('active')) {
+            if (e.key === 'Escape') elements.modalHelp.classList.remove('active');
+            return;
+          }
+          if (elements.modalIosInstall && elements.modalIosInstall.classList.contains('active')) {
+            if (e.key === 'Escape') elements.modalIosInstall.classList.remove('active');
+            return;
+          }
+          if (elements.modalReaderSettings && elements.modalReaderSettings.classList.contains('active')) {
+            if (e.key === 'Escape') elements.modalReaderSettings.classList.remove('active');
+            return;
+          }
+
+          // In Reader Mode:
+          if (elements.viewReader.classList.contains('active')) {
+            switch (e.key) {
+              case 'ArrowRight':
+                e.preventDefault();
+                nextWord();
+                break;
+              case 'ArrowLeft':
+                e.preventDefault();
+                prevWord();
+                break;
+              case ' ':
+                e.preventDefault();
+                toggleAutoPlay();
+                break;
+              case 'r':
+              case 'R':
+                e.preventDefault();
+                speakCurrentWord();
+                break;
+              case 'Escape':
+                e.preventDefault();
+                showView('input');
+                break;
+            }
+          }
+        });
+      }
+
+      /* ========================================================================
+         THEMES & FONT SETTINGS
+         ======================================================================== */
+      function bindSettingsEvents() {
+        // Font Family Selector
+        elements.fontFamilySelect.addEventListener('change', (e) => {
+          const val = e.target.value;
+          state.activeFont = val;
+          let fontVar = 'var(--font-lexend)';
+          if (val === 'comic') fontVar = 'var(--font-comic)';
+          else if (val === 'dyslexic') fontVar = 'var(--font-dyslexic)';
+          else if (val === 'clean') fontVar = 'var(--font-clean)';
+          document.documentElement.style.setProperty('--active-font', fontVar);
+        });
+
+        // Theme Selector
+        elements.themeSelect.addEventListener('change', (e) => {
+          const theme = e.target.value;
+          state.activeTheme = theme;
+          document.body.setAttribute('data-theme', theme);
+        });
+
+        // Highlight style choices in Settings compartment
+        if (elements.styleChoiceBtns) {
+          elements.styleChoiceBtns.forEach((btn) => {
+            btn.addEventListener('click', () => {
+              const style = btn.getAttribute('data-style');
+              if (style) {
+                setHighlightStyle(style, true);
+                triggerHaptic(10);
+              }
+            });
+          });
+        }
+
+        // Font size adjusters in Settings compartment
+        if (elements.btnSettingsFontSmaller) {
+          elements.btnSettingsFontSmaller.addEventListener('click', () => {
+            setFontSize(state.fontSize - 4);
+          });
+        }
+        if (elements.btnSettingsFontLarger) {
+          elements.btnSettingsFontLarger.addEventListener('click', () => {
+            setFontSize(state.fontSize + 4);
+          });
+        }
+
+        // Start reading CTA directly from Settings
+        if (elements.btnStartReadingFromSettings) {
+          elements.btnStartReadingFromSettings.addEventListener('click', launchReader);
+        }
+
+        // Shortcuts modal
+        elements.btnHelpShortcuts.addEventListener('click', () => {
+          elements.modalHelp.classList.add('active');
+        });
+        elements.btnCloseHelp.addEventListener('click', () => {
+          elements.modalHelp.classList.remove('active');
+        });
+        elements.btnCloseIosModal.addEventListener('click', () => {
+          elements.modalIosInstall.classList.remove('active');
+        });
+
+        // Close modals on clicking backdrop
+        [elements.modalCelebration, elements.modalHelp, elements.modalIosInstall, elements.modalReaderSettings].forEach((modal) => {
+          if (!modal) return;
+          modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+              modal.classList.remove('active');
+            }
+          });
+        });
+      }
+
+      /* ========================================================================
+         PWA & OFFLINE SERVICE WORKER ENGINE
+         ======================================================================== */
+      function checkStandaloneMode() {
+        const isStandalone =
+          window.matchMedia('(display-mode: standalone)').matches ||
+          window.navigator.standalone === true;
+        state.isStandalone = isStandalone;
+
+        const ua = window.navigator.userAgent.toLowerCase();
+        state.isIOS = /iphone|ipad|ipod/.test(ua);
+      }
+
+      function initPWA() {
+        // 1. Online / Offline network listeners
+        function updateOnlineStatus() {
+          if (navigator.onLine) {
+            elements.statusDot.classList.remove('offline');
+            elements.statusText.textContent = 'Offline Ready';
+          } else {
+            elements.statusDot.classList.add('offline');
+            elements.statusText.textContent = 'Working Offline';
+          }
+        }
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus();
+
+        // 2. In-App Install Prompt Handling
+        if (!state.isStandalone) {
+          window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            state.deferredInstallPrompt = e;
+            elements.btnPwaInstall.style.display = 'inline-flex';
+          });
+
+          window.addEventListener('appinstalled', () => {
+            state.deferredInstallPrompt = null;
+            elements.btnPwaInstall.style.display = 'none';
+          });
+
+          // If on iOS and not standalone, show install button that opens guide
+          if (state.isIOS) {
+            elements.btnPwaInstall.style.display = 'inline-flex';
+            elements.btnPwaInstall.innerHTML = '<span>📲 Install App</span>';
+          }
+
+          elements.btnPwaInstall.addEventListener('click', async () => {
+            if (state.deferredInstallPrompt) {
+              state.deferredInstallPrompt.prompt();
+              const { outcome } = await state.deferredInstallPrompt.userChoice;
+              if (outcome === 'accepted') {
+                elements.btnPwaInstall.style.display = 'none';
+              }
+              state.deferredInstallPrompt = null;
+            } else if (state.isIOS) {
+              elements.modalIosInstall.classList.add('active');
+            } else {
+              alert('To install this reading tool, tap the Install icon in your browser address bar or menu.');
+            }
+          });
+        }
+
+        // 3. Register Embedded Service Worker via Blob (Single-File PWA Architecture)
+        registerEmbeddedServiceWorker();
+      }
+
+      function registerEmbeddedServiceWorker() {
+        if (!('serviceWorker' in navigator)) return;
+
+        // Try registering standalone /sw.js first if available; fallback to dynamic Blob Service Worker
+        navigator.serviceWorker.register('/sw.js', { scope: '/' })
+          .then((reg) => {
+            console.log('ServiceWorker registered from /sw.js:', reg.scope);
+          })
+          .catch((err) => {
+            // Register via Blob URL for self-contained single-file portability
+            const swSourceCode = `
+              const CACHE_NAME = 'karaoke-reader-cache-v1';
+              self.addEventListener('install', (e) => {
+                self.skipWaiting();
+              });
+              self.addEventListener('activate', (e) => {
+                e.waitUntil(self.clients.claim());
+              });
+              self.addEventListener('fetch', (e) => {
+                if (e.request.method !== 'GET') return;
+                e.respondWith(
+                  caches.match(e.request).then((cached) => {
+                    if (cached) return cached;
+                    return fetch(e.request).then((networkRes) => {
+                      if (networkRes && networkRes.status === 200) {
+                        const clone = networkRes.clone();
+                        caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));
+                      }
+                      return networkRes;
+                    }).catch(() => caches.match('/'));
+                  })
+                );
+              });
+            `;
+
+            try {
+              const blob = new Blob([swSourceCode], { type: 'text/javascript' });
+              const blobUrl = URL.createObjectURL(blob);
+              navigator.serviceWorker.register(blobUrl, { scope: './' })
+                .then((blobReg) => {
+                  console.log('Embedded Blob ServiceWorker active:', blobReg.scope);
+                })
+                .catch((blobErr) => {
+                  console.log('Cache API fallback active:', blobErr);
+                });
+            } catch (e) {
+              console.warn('SW registration skipped:', e);
+            }
+          });
+
+        // Pre-cache current URL into Cache Storage for instant offline use
+        if ('caches' in window) {
+          caches.open('karaoke-reader-cache-v1').then((cache) => {
+            cache.addAll([window.location.href, '/index.html', '/icon.svg']).catch(() => {});
+          });
+        }
+      }
+
+      // Start application on DOM Ready
+      document.addEventListener('DOMContentLoaded', init);
+    })();
+  </script>
+</body>
+</html>

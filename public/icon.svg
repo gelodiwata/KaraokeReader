@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5" />
+      <stop offset="100%" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="pageGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#f8fafc" />
+    </linearGradient>
+  </defs>
+  <!-- Background with safe zone -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" />
+  <!-- Open Book Base -->
+  <g transform="translate(64, 96)">
+    <!-- Left Page -->
+    <path d="M192 280 C120 250 40 255 0 270 L0 50 C40 35 120 30 192 60 Z" fill="url(#pageGrad)" stroke="#e2e8f0" stroke-width="4"/>
+    <!-- Right Page -->
+    <path d="M192 280 C264 250 344 255 384 270 L384 50 C344 35 264 30 192 60 Z" fill="url(#pageGrad)" stroke="#e2e8f0" stroke-width="4"/>
+    <!-- Book Spine center -->
+    <path d="M192 60 L192 280" stroke="#cbd5e1" stroke-width="6" stroke-linecap="round"/>
+    <!-- Left Page Text Lines -->
+    <rect x="30" y="80" width="130" height="12" rx="6" fill="#cbd5e1" />
+    <rect x="30" y="115" width="110" height="12" rx="6" fill="#cbd5e1" />
+    <!-- Highlighted Active Word (Karaoke style) -->
+    <rect x="25" y="150" width="95" height="26" rx="8" fill="#facc15" stroke="#eab308" stroke-width="2"/>
+    <rect x="32" y="158" width="80" height="10" rx="5" fill="#713f12" />
+    <rect x="30" y="195" width="125" height="12" rx="6" fill="#cbd5e1" />
+    
+    <!-- Right Page Text Lines -->
+    <rect x="225" y="80" width="130" height="12" rx="6" fill="#cbd5e1" />
+    <rect x="225" y="115" width="120" height="12" rx="6" fill="#cbd5e1" />
+    <rect x="225" y="150" width="130" height="12" rx="6" fill="#cbd5e1" />
+    <rect x="225" y="185" width="90" height="12" rx="6" fill="#cbd5e1" />
+  </g>
+  <!-- Cheerful Star Mascot / Sound Waves -->
+  <g transform="translate(350, 80)">
+    <circle cx="40" cy="40" r="36" fill="#facc15" stroke="#ffffff" stroke-width="4"/>
+    <!-- Musical Note or Star -->
+    <path d="M34 26 L48 22 L48 44 C46 42 42 41 38 43 C33 45 32 50 36 53 C40 56 46 54 48 49 L48 30 L34 33 Z" fill="#78350f"/>
+  </g>
+</svg>
